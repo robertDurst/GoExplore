@@ -2,9 +2,11 @@ package main
 
 import (
 	"bufio"
+	"bytes"
 	"fmt"
 	"os"
 	"strings"
+	"unicode"
 )
 
 /*
@@ -26,8 +28,39 @@ func parseAtom(word string) {
 
 func parse(line string) {
 	words := strings.Split(line, " ")
+
+	// split by word
 	for _, word := range words {
-		parseAtom(word)
+		isWord := false
+
+		wordAsRune := []rune(word)
+		if unicode.IsLetter(wordAsRune[0]) {
+			isWord = true
+		}
+
+		var buffer bytes.Buffer
+		if isWord {
+			buffer.WriteRune(wordAsRune[0])
+		}
+
+		// split by character of word
+		for i, char := range strings.Split(word, "") {
+			if isWord && i == 0 {
+				continue
+			}
+
+			if char == ")" {
+				break
+			} else if char == "(" {
+				break
+			} else if char == "." {
+				break
+			} else if unicode.IsNumber(wordAsRune[i]) || unicode.IsLetter(wordAsRune[i]) {
+				buffer.WriteRune(wordAsRune[i])
+			}
+		}
+
+		fmt.Println(buffer.String())
 	}
 }
 
