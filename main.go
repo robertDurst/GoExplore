@@ -1,12 +1,17 @@
 package main
 
 import (
+	g "GoExplore/gen"
 	i "GoExplore/interpreter"
+	"os"
 )
 
 func main() {
-	// regenerate the latest SExpressions
-	// g.GenerateSExpressionDefinitions([]string{"LParen", "RParen", "Dot", "LSquareBracket", "RSquareBracket", "Semicolon"}, "./Interpreter", "interpreter")
-
-	i.RunGoExplore()
+	if len(os.Args) == 2 && os.Args[1] == "gen_sed" {
+		// regenerate the latest SExpressions
+		g.GenerateSExpressionDefinitions([]string{"LParen", "RParen"}, "./Interpreter", "interpreter")
+	} else {
+		//  begin interpreter
+		i.RunGoExplore()
+	}
 }

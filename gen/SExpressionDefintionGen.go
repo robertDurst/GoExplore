@@ -15,14 +15,14 @@ func GenerateSExpressionDefinitions(sexpressions []string, directory string, pac
 	buffer.WriteString(packageName)
 	buffer.WriteString("\n\n")
 
-	// imports
-	buffer.WriteString("import \"fmt\"\n\n")
-
 	// SExpression defintion
-	buffer.WriteString("type SExpression interface {\n\tGetName()\n}\n")
+	buffer.WriteString("type SExpression interface {\n\tGetName() string\n}\n")
 
 	// atom s-expression
 	buffer.WriteString(generateAtomSExpression())
+
+	// list s-expression
+	buffer.WriteString(generateListSExpression())
 
 	// basic punctuation
 	for _, sexpression := range sexpressions {
@@ -43,9 +43,9 @@ func generateSExpressionBasic(name string) string {
 
 	buffer.WriteString("func (a ")
 	buffer.WriteString(name)
-	buffer.WriteString(") GetName() { \n\tfmt.Println(\"")
+	buffer.WriteString(") GetName() string { \n\treturn \"")
 	buffer.WriteString(name)
-	buffer.WriteString("\")\n}\n")
+	buffer.WriteString("\"\n}\n")
 
 	return buffer.String()
 }
@@ -80,8 +80,20 @@ type Atom struct {
 	name string
 }
 
-func (a Atom) GetName() {
-	fmt.Printf("Atom: %s\n", a.name)
+func (a Atom) GetName() string {
+	return "Atom"
+}
+`
+}
+
+func generateListSExpression() string {
+	return `
+type List struct {
+	sexps []SExpression
+}
+
+func (l List) GetName() string {
+	return "List"
 }
 `
 }

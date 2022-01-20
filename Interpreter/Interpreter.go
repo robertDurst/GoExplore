@@ -9,7 +9,7 @@ import (
 	"unicode"
 )
 
-func parse(line string) []SExpression {
+func tokenize(line string) []SExpression {
 	tokens := make([]SExpression, 0)
 
 	words := strings.Split(line, " ")
@@ -42,34 +42,6 @@ func parse(line string) []SExpression {
 					buffer.Reset()
 				}
 				tokens = append(tokens, LParen{})
-			} else if char == "." {
-				if isWord {
-					isWord = false
-					tokens = append(tokens, Atom{name: buffer.String()})
-					buffer.Reset()
-				}
-				tokens = append(tokens, Dot{})
-			} else if char == "[" {
-				if isWord {
-					isWord = false
-					tokens = append(tokens, Atom{name: buffer.String()})
-					buffer.Reset()
-				}
-				tokens = append(tokens, LSquareBracket{})
-			} else if char == ";" {
-				if isWord {
-					isWord = false
-					tokens = append(tokens, Atom{name: buffer.String()})
-					buffer.Reset()
-				}
-				tokens = append(tokens, Semicolon{})
-			} else if char == "]" {
-				if isWord {
-					isWord = false
-					tokens = append(tokens, Atom{name: buffer.String()})
-					buffer.Reset()
-				}
-				tokens = append(tokens, RSquareBracket{})
 			} else if unicode.IsNumber(wordAsRune[i]) || unicode.IsLetter(wordAsRune[i]) {
 				buffer.WriteRune(wordAsRune[i])
 			}
@@ -84,12 +56,44 @@ func parse(line string) []SExpression {
 	return tokens
 }
 
-func interpretLine(line string) {
-	tokens := parse(line)
+func interpretLine(line string) []SExpression {
+	tokens := tokenize(line)
 
+	sexps := make([]SExpression, 0)
+	inList := 0
+	listQueue := make([]List, 0)
 	for _, token := range tokens {
-		token.GetName()
+
+		switch token.GetName() {
+		case "Atom":
+			if inList > 0 {
+				listQueue[inList-1].sexps = append(listQueue[inList-1].sexps, token)
+			} else {
+				sexps = append(sexps, token)
+			}
+		case "LParen":
+			listQueue = append(listQueue, List{sexps: make([]SExpression, 0)})
+			inList++
+		case "RParen":
+			if inList == 0 {
+				panic("tried to close a list when not open")
+			} else {
+				inList--
+				if inList == 0 {
+					sexps = append(sexps, listQueue[len(listQueue)-1])
+				} else {
+					listQueue[len(listQueue)-2].sexps = append(listQueue[len(listQueue)-2].sexps, listQueue[len(listQueue)-1])
+				}
+				listQueue = listQueue[:len(listQueue)-1]
+			}
+		}
 	}
+
+	if inList != 0 {
+		panic("expected a closing paren")
+	}
+
+	return sexps
 }
 
 func getNextInput() string {
@@ -106,7 +110,10 @@ func RunGoExplore() {
 
 	for {
 		line := getNextInput()
-		fmt.Printf("Input: %s", line)
-		interpretLine(line)
+		sexps := interpretLine(line)
+
+		for _, sexp := range sexps {
+			fmt.Println(sexp)
+		}
 	}
 }
