@@ -39,36 +39,36 @@ func (l List) GetName() string {
 
 type LParen struct{}
 
-func (a LParen) GetName() string { 
+func (a LParen) GetName() string {
 	return "LParen"
 }
 
 type RParen struct{}
 
-func (a RParen) GetName() string { 
+func (a RParen) GetName() string {
 	return "RParen"
 }
 
 type Dot struct{}
 
-func (a Dot) GetName() string { 
+func (a Dot) GetName() string {
 	return "Dot"
 }
 
 type LSquareBracket struct{}
 
-func (a LSquareBracket) GetName() string { 
+func (a LSquareBracket) GetName() string {
 	return "LSquareBracket"
 }
 
 type RSquareBracket struct{}
 
-func (a RSquareBracket) GetName() string { 
+func (a RSquareBracket) GetName() string {
 	return "RSquareBracket"
 }
 
 type Semicolon struct{}
 
-func (a Semicolon) GetName() string { 
+func (a Semicolon) GetName() string {
 	return "Semicolon"
 }
