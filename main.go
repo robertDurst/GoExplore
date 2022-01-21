@@ -11,7 +11,7 @@ func main() {
 		// regenerate the latest SExpressions
 		g.GenerateSExpressionDefinitions([]string{"LParen", "RParen"}, "./Interpreter", "interpreter")
 	} else {
-		//  begin interpreter
-		i.RunGoExplore()
+		dat, _ := os.ReadFile("./lib.lisp")
+		i.RunGoExplore(string(dat))
 	}
 }

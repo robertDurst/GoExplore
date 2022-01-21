@@ -15,13 +15,25 @@ func getNextInput() string {
 	return text
 }
 
-func RunGoExplore() {
+func RunGoExploreInterpreter() {
 	fmt.Println("Starting GoExplore...")
 
 	for {
 		line := getNextInput()
 		tokens := tokenize(line)
-		finalAnswer := evaluate(tokens)
-		fmt.Println(finalAnswer)
+		for _, token := range tokens {
+			fmt.Printf("[%s]: %s\n", token.GetName(), token)
+		}
+	}
+}
+
+func RunGoExplore(input string) {
+	fmt.Println("==============")
+	fmt.Println(input)
+	fmt.Printf("==============\n\n")
+
+	tokens := tokenize(input)
+	for _, token := range tokens {
+		fmt.Printf("[%s]: %s\n", token.GetName(), token)
 	}
 }
