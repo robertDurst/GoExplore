@@ -11,7 +11,10 @@ func main() {
 		// regenerate the latest SExpressions
 		g.GenerateSExpressionDefinitions([]string{"LParen", "RParen"}, "./Interpreter", "interpreter")
 	} else {
-		dat, _ := os.ReadFile("./lib.lisp")
-		i.RunGoExplore(string(dat))
+		// data, _ := os.ReadFile("./lib.lisp")
+		data := `
+cons (car ((car (2 3)))) (4)
+		`
+		i.RunGoExplore(string(data))
 	}
 }

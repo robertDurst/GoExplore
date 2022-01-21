@@ -15,8 +15,12 @@ func GenerateSExpressionDefinitions(sexpressions []string, directory string, pac
 	buffer.WriteString(packageName)
 	buffer.WriteString("\n\n")
 
+	// imports
+	buffer.WriteString("import \"bytes\"")
+	buffer.WriteString("\n\n")
+
 	// SExpression defintion
-	buffer.WriteString("type SExpression interface {\n\tGetName() string\n}\n")
+	buffer.WriteString("type SExpression interface {\n\tGetName() string\n\tPrettyPrint() string\n}\n")
 
 	// atom s-expression
 	buffer.WriteString(generateAtomSExpression())
@@ -44,6 +48,12 @@ func generateSExpressionBasic(name string) string {
 	buffer.WriteString("func (a ")
 	buffer.WriteString(name)
 	buffer.WriteString(") GetName() string { \n\treturn \"")
+	buffer.WriteString(name)
+	buffer.WriteString("\"\n}\n")
+
+	buffer.WriteString("func (a ")
+	buffer.WriteString(name)
+	buffer.WriteString(") PrettyPrint() string { \n\treturn \"")
 	buffer.WriteString(name)
 	buffer.WriteString("\"\n}\n")
 
@@ -83,6 +93,10 @@ type Atom struct {
 func (a Atom) GetName() string {
 	return "Atom"
 }
+
+func (a Atom) PrettyPrint() string {
+	return a.name
+}
 `
 }
 
@@ -94,6 +108,16 @@ type List struct {
 
 func (l List) GetName() string {
 	return "List"
+}
+
+func (l List) PrettyPrint() string {
+	var buffer bytes.Buffer
+	buffer.WriteString("( ")
+	for _, val := range l.sexps {
+		buffer.WriteString(val.PrettyPrint())
+	}
+
+	return buffer.String()
 }
 `
 }

@@ -33,7 +33,7 @@ func RunGoExplore(input string) {
 	fmt.Printf("==============\n\n")
 
 	tokens := tokenize(input)
-	for _, token := range tokens {
-		fmt.Printf("[%s]: %s\n", token.GetName(), token)
-	}
+	finalSExp := evaluate(tokens, 0)
+
+	fmt.Println(finalSExp.PrettyPrint())
 }
