@@ -24,9 +24,6 @@ func GenerateSExpressionDefinitions(sexpressions []string, directory string, pac
 	// list s-expression
 	buffer.WriteString(generateListSExpression())
 
-	// comment s-expression
-	buffer.WriteString(generateCommentSExpression())
-
 	// basic punctuation
 	for _, sexpression := range sexpressions {
 		buffer.WriteString("\n")
@@ -97,18 +94,6 @@ type List struct {
 
 func (l List) GetName() string {
 	return "List"
-}
-`
-}
-
-func generateCommentSExpression() string {
-	return `
-type Comment struct {
-	Comment string
-}
-
-func (c Comment) GetName() string {
-	return "Comment"
 }
 `
 }
