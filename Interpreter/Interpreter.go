@@ -19,21 +19,21 @@ func RunGoExploreInterpreter() {
 	fmt.Println("Starting GoExplore...")
 
 	for {
-		line := getNextInput()
-		tokens := tokenize(line)
-		for _, token := range tokens {
-			fmt.Printf("[%s]: %s\n", token.GetName(), token)
-		}
+		// line := getNextInput()
+		// tokens := tokenize(line)
+		// for _, token := range tokens {
+		// 	fmt.Printf("[%s]: %s\n", token.GetName(), token)
+		// }
 	}
 }
 
 func RunGoExplore(input string) {
-	fmt.Println("==============")
+	fmt.Println("======= Source =======")
 	fmt.Println(input)
-	fmt.Printf("==============\n\n")
+	fmt.Printf("======================\n\n")
 
-	tokens := tokenize(input)
-	finalSExp := evaluate(tokens, 0)
-
-	fmt.Println(finalSExp.PrettyPrint())
+	tokens := lex(input)
+	for _, token := range tokens {
+		fmt.Printf("[%s]: %s\n", token.GetType(), token.GetValue())
+	}
 }
