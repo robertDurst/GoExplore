@@ -2,6 +2,7 @@ package interpreter
 
 import (
 	"bytes"
+	"strings"
 	"unicode"
 	"GoExplore/interpreter/lexicons"
 )
@@ -12,6 +13,10 @@ func lex(line string) []lexicons.Lexicon {
 	var curAtom bytes.Buffer
 	lenLine := len(line)
 	curIndex := 0
+
+	curListType := make([]int, 0) // a binary where 1 is sexp and 2 is arg
+	sexpList := make([]lexicons.List, 0)
+	argList := make([]lexicons.ArgList, 0)
 
 	for curIndex < lenLine {
 		curChar := line[curIndex]
@@ -28,16 +33,46 @@ func lex(line string) []lexicons.Lexicon {
 				curChar = line[curIndex]
 			}
 		case '(':
-			ls = append(ls, lexicons.LParen{})
+			sexpList = append(sexpList, lexicons.CreateList())
+			curListType = append(curListType, 1)
 		case ')':
-			ls = append(ls, lexicons.RParen{})
+			if len(sexpList) == 0 {
+				panic("Too many right parenthesis.")
+			}
+
+			curListType = curListType[:len(curListType)-1]
+
+			if len(curListType) == 0 {
+				ls = append(ls, sexpList[len(sexpList)-1])
+				sexpList = sexpList[:len(sexpList)-1]
+			} else if curListType[len(curListType)-1] == 2 {
+				argList[len(argList)-1].Value = append(argList[len(argList)-1].Value, sexpList[len(sexpList)-1])
+				sexpList = sexpList[:len(sexpList)-1]
+			} else {
+				sexpList[len(sexpList)-2].Value = append(sexpList[len(sexpList)-2].Value, sexpList[len(sexpList)-1])
+				sexpList = sexpList[:len(sexpList)-1]
+			}
+			
 		case '[':
-			ls = append(ls, lexicons.LSquareBracket{})
+			argList = append(argList, lexicons.CreateArgList())
+			curListType = append(curListType, 2)
 		case ']':
-			ls = append(ls, lexicons.RSquareBracket{})
-		case '.':
-			ls = append(ls, lexicons.Dot{})
-		case ';':
+			if len(sexpList) == 0 {
+				panic("Too many right square brackets.")
+			}
+
+			curListType = curListType[:len(curListType)-1]
+
+			if len(curListType) == 0 {
+				ls = append(ls, argList[len(argList)-1])
+				argList = argList[:len(argList)-1]
+			} else if curListType[len(curListType)-1] == 2 {
+				argList[len(argList)-2].Value = append(argList[len(argList)-2].Value, sexpList[len(sexpList)-1])
+				argList = argList[:len(argList)-1]
+			} else {
+				panic("An ArgList cannot be an element of a SExpression List.")
+			}
+				case ';':
 			ls = append(ls, lexicons.Semicolon{})
 		case '~':
 			ls = append(ls, lexicons.Squiggle{})
@@ -59,7 +94,19 @@ func lex(line string) []lexicons.Lexicon {
 					
 					curIndex++
 				}
-				ls = append(ls, lexicons.CreateAtom(curAtom.String()))
+
+				isSExpression := strings.ToUpper(curAtom.String()) == curAtom.String()
+				if !isSExpression && (strings.ToLower(curAtom.String()) != curAtom.String()) {
+					panic("Atom must be either all upper case or all lower case")
+				}
+				atom := lexicons.CreateAtom(curAtom.String(), isSExpression)
+
+				if len(sexpList) == 0 {
+					ls = append(ls, atom)
+				} else {
+				
+					sexpList[len(sexpList)-1].Value = append(sexpList[len(sexpList)-1].Value, atom)
+				}
 				curIndex--
 			} 
 		}

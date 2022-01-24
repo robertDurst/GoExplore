@@ -1,14 +1,16 @@
 package errors
 
-import "fmt"
-
-type StdErrorHandler struct {
+type PanicErrorHandler struct {
 }
 
-func (seh StdErrorHandler) ThrowError(message string) {
-	fmt.Printf("[ERROR]: %s\n", message)
+func (peh PanicErrorHandler) ThrowError(message string) {
+	panic(message)
 }
 
-func CreateStdErrorHandler() StdErrorHandler {
-	return StdErrorHandler{}
+func CreatePanicErrorHandler() PanicErrorHandler {
+	return PanicErrorHandler{}
+}
+
+func (sapeh PanicErrorHandler) ThrowErrorIfFalse(message string, assertion bool) {
+	panic(message)
 }
