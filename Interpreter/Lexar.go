@@ -101,11 +101,12 @@ func lex(line string) []lexicons.Lexicon {
 				}
 				atom := lexicons.CreateAtom(curAtom.String(), isSExpression)
 
-				if len(sexpList) == 0 {
+				if len(curListType) == 0 {
 					ls = append(ls, atom)
-				} else {
-				
+				} else if curListType[len(curListType)-1] == 1 {
 					sexpList[len(sexpList)-1].Value = append(sexpList[len(sexpList)-1].Value, atom)
+				} else {
+					argList[len(argList)-1].Value = append(argList[len(argList)-1].Value, atom)
 				}
 				curIndex--
 			} 

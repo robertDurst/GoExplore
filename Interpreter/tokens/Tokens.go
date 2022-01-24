@@ -1,5 +1,7 @@
 package tokens
 
+import "GoExplore/interpreter/lexicons"
+
 type Token interface {
 	GetType() string
 }
@@ -16,34 +18,38 @@ func CreateForm(token Token) Form {
 	return Form{Value: token}
 }
 
-type SExpression struct {
-	Values []SubSExpression
+type Constant struct {
+	Value lexicons.SExpression
 }
 
-func (se SExpression) GetType() string {
-	return "SExpression"
+func (c Constant) GetType() string {
+	return "Constant"
 }
 
-func CreateSExpression(values []SubSExpression) SExpression {
-	return SExpression{Values: values}
+func CreateConstant(value lexicons.SExpression) Constant {
+	return Constant{Value: value}
 }
 
-type SubSExpression interface {
-	GetType() string
+type Variable struct {
+	Value Identifier
 }
 
-type List struct {
-	Values []SubSExpression
+func (v Variable) GetType() string {
+	return "Variable"
 }
 
-func (l List) GetType() string {
-	return "List"
+func CreateVariable(value Identifier) Variable {
+	return Variable{Value: value}
 }
 
-type Atom struct {
+type Identifier struct {
 	Value string
 }
 
-func (a Atom) GetType() string {
-	return "Atom"
+func (i Identifier) GetType() string {
+	return "Identifier"
+}
+
+func CreateIdentifier(value string) Identifier {
+	return Identifier{Value: value}
 }

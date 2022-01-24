@@ -5,7 +5,7 @@ import (
 	"testing"
 )
 
-func TestEmpty(t *testing.T) {
+func TestEmptyInputLexar(t *testing.T) {
 	lexicons := lex("")
 	if len(lexicons) != 0 {
 		t.Errorf("Expected 0 lexicons from empty input. Received %d.", len(lexicons))
