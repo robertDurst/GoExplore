@@ -22,6 +22,9 @@ func lex(line string) []lexicons.Lexicon {
 		case '?':
 			for curChar != '\n' {
 				curIndex++
+				if (lenLine <= curIndex) {
+					break
+				}
 				curChar = line[curIndex]
 			}
 		case '(':
