@@ -107,3 +107,35 @@ func TestPanicWhenArgListIsElementOfSExpressionList(t *testing.T) {
 
 	t.Errorf("Expected a panic, but did not panic.")
 }
+
+func TestPanicWhenMissingArgListEndParen(t *testing.T) {
+	defer func() { recover() }()
+
+	lex("label[foo;label[foobar;@[[a;b;c;d;e];label[cons;bar]]]")
+
+	t.Errorf("Expected a panic, but did not panic.")
+}
+
+func TestPanicWhenMissingSExpListEndParen(t *testing.T) {
+	defer func() { recover() }()
+
+	lex("((hello)")
+
+	t.Errorf("Expected a panic, but did not panic.")
+}
+
+func TestPanicWhenMissingArgListTooManyEndParen(t *testing.T) {
+	defer func() { recover() }()
+
+	lex("label[foo;label[foobar;@[[a;b;c;d;e];label[cons;bar]]]]]")
+
+	t.Errorf("Expected a panic, but did not panic.")
+}
+
+func TestPanicWhenMissingSExpListTooManyEndParen(t *testing.T) {
+	defer func() { recover() }()
+
+	lex("((hello)))")
+
+	t.Errorf("Expected a panic, but did not panic.")
+}

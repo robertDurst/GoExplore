@@ -128,3 +128,60 @@ func TestFunctionLabelWithInnerFunctionLabelTokenizes(t *testing.T) {
 		t.Errorf("Expected form's inner value to be a FunctionLabel. Received %s.", form.Value.GetType())
 	}
 }
+
+func TestFunctionAtSignTokenizes(t *testing.T) {
+	ls := lex("@[[foo;bar;baz];label[some;cons]]")
+	tokenizer := CreateTokenizer(ls)
+	tks := tokenizer.tokenize()
+
+	if len(tks) != 1 {
+		t.Errorf("Expected 1 tokens from function label. Received %d.", len(tks))
+	}
+
+	if tks[0].GetType() != "Form" {
+		t.Errorf("Expected outer token to be of type Form. Received %s.", tks[0].GetType())
+	}
+
+	form := tks[0].(tokens.Form)
+	if form.Value.GetType() != "FunctionAtSign" {
+		t.Errorf("Expected form's inner value to be a FunctionLabel. Received %s.", form.Value.GetType())
+	}
+}
+
+func TestFunctionAtSignInFunctionAtSignTokenizes(t *testing.T) {
+	ls := lex("@[[foo;bar;baz];@[[zee;car;zoom;pool];cons]]")
+	tokenizer := CreateTokenizer(ls)
+	tks := tokenizer.tokenize()
+
+	if len(tks) != 1 {
+		t.Errorf("Expected 1 tokens from function label. Received %d.", len(tks))
+	}
+
+	if tks[0].GetType() != "Form" {
+		t.Errorf("Expected outer token to be of type Form. Received %s.", tks[0].GetType())
+	}
+
+	form := tks[0].(tokens.Form)
+	if form.Value.GetType() != "FunctionAtSign" {
+		t.Errorf("Expected form's inner value to be a FunctionLabel. Received %s.", form.Value.GetType())
+	}
+}
+
+func TestManyFunctionsInsideFunctions(t *testing.T) {
+	ls := lex("label[foo;label[foobar;@[[a;b;c;d;e];label[cons;bar]]]]")
+	tokenizer := CreateTokenizer(ls)
+	tks := tokenizer.tokenize()
+
+	if len(tks) != 1 {
+		t.Errorf("Expected 1 tokens from function label. Received %d.", len(tks))
+	}
+
+	if tks[0].GetType() != "Form" {
+		t.Errorf("Expected outer token to be of type Form. Received %s.", tks[0].GetType())
+	}
+
+	form := tks[0].(tokens.Form)
+	if form.Value.GetType() != "FunctionLabel" {
+		t.Errorf("Expected form's inner value to be a FunctionLabel. Received %s.", form.Value.GetType())
+	}
+}

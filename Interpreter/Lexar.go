@@ -83,9 +83,23 @@ func lex(line string) []lexicons.Lexicon {
 				argList[len(argList)-1].Value = append(argList[len(argList)-1].Value, semicolon)
 			}		
 		case '~':
-			ls = append(ls, lexicons.Squiggle{})
+			squiggle := lexicons.Squiggle{}
+			if len(curListType) == 0 {
+				ls = append(ls, squiggle)
+			} else if curListType[len(curListType)-1] == 1 {
+				sexpList[len(sexpList)-1].Value = append(sexpList[len(sexpList)-1].Value, squiggle)
+			} else {
+				argList[len(argList)-1].Value = append(argList[len(argList)-1].Value, squiggle)
+			}		
 		case '@':
-			ls = append(ls, lexicons.AtSign{})
+			atSign := lexicons.AtSign{}
+			if len(curListType) == 0 {
+				ls = append(ls, atSign)
+			} else if curListType[len(curListType)-1] == 1 {
+				sexpList[len(sexpList)-1].Value = append(sexpList[len(sexpList)-1].Value, atSign)
+			} else {
+				argList[len(argList)-1].Value = append(argList[len(argList)-1].Value, atSign)
+			}		
 		default:
 			if unicode.IsLetter(rune(curChar)) {
 				curAtom.Reset()
@@ -121,6 +135,14 @@ func lex(line string) []lexicons.Lexicon {
 		}
 
 		curIndex++
+	}
+
+	if len(argList) != 0 {
+		panic("Forgot to close an ArgList")
+	}
+
+	if len(sexpList) != 0 {
+		panic("Forgot to close a SexpList")
 	}
 
 	return ls

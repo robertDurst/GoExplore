@@ -82,3 +82,28 @@ func (fl FunctionLabel) GetType() string {
 func CreateFunctionLabel(name Identifier, fn Function) FunctionLabel {
 	return FunctionLabel{Name: name, Fn: fn}
 }
+
+type VarList struct {
+	Value []Token
+}
+
+func (v VarList) GetType() string {
+	return "VarList"
+}
+
+func CreateVarList() VarList {
+	return VarList{Value: make([]Token, 0)}
+}
+
+type FunctionAtSign struct {
+	Vars VarList
+	Rest Form
+}
+
+func (fas FunctionAtSign) GetType() string {
+	return "FunctionAtSign"
+}
+
+func CreateFunctionAtSign(vars VarList, rest Form) FunctionAtSign {
+	return FunctionAtSign{Vars: vars, Rest: rest}
+}

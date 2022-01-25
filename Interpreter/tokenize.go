@@ -3,6 +3,7 @@ package interpreter
 import (
 	"GoExplore/interpreter/lexicons"
 	"GoExplore/interpreter/tokens"
+	"fmt"
 )
 
 type Tokenizer struct {
@@ -85,6 +86,57 @@ func (t *Tokenizer) parseForm() {
 
 	case "ArgList":
 		panic("Not implemented")
+
+	case "AtSign":
+		t.i++
+		functionAtSign := t.parseFunctionAtSign(t.lexs[t.i])
+		form := tokens.CreateForm(functionAtSign)
+		t.tks = append(t.tks, form)
+		t.i++
+		return
+	}
+}
+
+func (t Tokenizer) parseForm2(lexs []lexicons.Lexicon) tokens.Form {
+	cur := lexs[0]
+
+	switch cur.GetType() {
+	case "Atom":
+		atom := cur.(lexicons.Atom)
+
+		if atom.IsSExpression() {
+			constant := tokens.CreateConstant(atom)
+			return tokens.CreateForm(constant)
+		} else {
+			identifier := tokens.CreateIdentifier(atom.GetValue())
+			if _, ok := t.knownFunctionNames[atom.GetValue()]; ok {
+				// function starting identifier
+				functionIdentifier := tokens.CreateFunctionIdentifier(identifier)
+				return tokens.CreateForm(functionIdentifier)
+			} else if atom.GetValue() == "label" {
+				functionLabel := t.parseFunctionLabel(lexs[1])
+				return tokens.CreateForm(functionLabel)
+			} else {
+				// variable
+				variable := tokens.CreateVariable(identifier)
+				return tokens.CreateForm(variable)
+			}
+		}
+
+	case "List":
+		// lists are SExpressions, thus must be a constant
+		constant := tokens.CreateConstant(cur.(lexicons.List))
+		return tokens.CreateForm(constant)
+
+	case "ArgList":
+		panic("Not implemented")
+
+	case "AtSign":
+		functionAtSign := t.parseFunctionAtSign(lexs[1])
+		return tokens.CreateForm(functionAtSign)
+
+	default:
+		panic("Unexpected lexicon received in ParseForm2")
 	}
 }
 
@@ -99,7 +151,7 @@ func (t Tokenizer) parseFunctionLabel(cur lexicons.Lexicon) tokens.Token {
 	identifierValue := argList.Value[0]
 
 	if identifierValue.GetType() != "Atom" {
-		panic("Expected Atom to be first element in 'label' ArgList")
+		panic(fmt.Sprintf("Expected Atom to be first element in 'label'. Received [%s]: %s.", identifierValue.GetType(), identifierValue))
 	}
 
 	atom := identifierValue.(lexicons.Atom)
@@ -124,7 +176,6 @@ func (t Tokenizer) parseFunctionLabel(cur lexicons.Lexicon) tokens.Token {
 // label[<identifier>;<function>]
 // IN: ?????
 func (t Tokenizer) parseFunction(fnLexs []lexicons.Lexicon) tokens.Function {
-
 	if fnLexs[0].GetType() == "Atom" {
 		atom := fnLexs[0].(lexicons.Atom)
 		identifier := tokens.CreateIdentifier(atom.GetValue())
@@ -156,6 +207,45 @@ func (t Tokenizer) parseFunction(fnLexs []lexicons.Lexicon) tokens.Function {
 	}
 }
 
-func (t Tokenizer) parseFunctionAtSign(fnLex lexicons.Lexicon) tokens.Function {
-	return nil
+// @[<var list>;<form>] |
+// IN: ArgList
+func (t Tokenizer) parseFunctionAtSign(cur lexicons.Lexicon) tokens.Function {
+	if cur.GetType() != "ArgList" {
+		panic(fmt.Sprintf("Expected ArgList to follow 'AtSign'. Received %s.", cur.GetType()))
+	}
+
+	argList := cur.(lexicons.ArgList)
+
+	if argList.Value[0].GetType() != "ArgList" {
+		panic("Expected Atom to be first element in 'label' ArgList")
+	}
+
+	varListArgList := argList.Value[0].(lexicons.ArgList)
+	varList := tokens.CreateVarList()
+	i := 0
+	for i < len(varListArgList.Value) {
+		if varListArgList.Value[i].GetType() != "Atom" || varListArgList.Value[i].(lexicons.Atom).IsSExpression() {
+			panic("Expected only variables (a.k.a. identifiers) in VarList")
+		}
+		variable := tokens.CreateIdentifier(varListArgList.Value[i].(lexicons.Atom).GetValue())
+
+		i++
+
+		if i < len(varListArgList.Value) {
+			if varListArgList.Value[i].GetType() != "Semicolon" {
+				panic("Expected ';' to separate variables in VarList")
+			}
+
+			i++
+		}
+		varList.Value = append(varList.Value, variable)
+	}
+
+	if argList.Value[1].GetType() != "Semicolon" {
+		panic("Expected Identifier of FunctionAtSign's VarList to be followed by a Semicolon")
+	}
+
+	form := t.parseForm2(argList.Value[2:])
+	functionAtSign := tokens.CreateFunctionAtSign(varList, form)
+	return functionAtSign
 }
