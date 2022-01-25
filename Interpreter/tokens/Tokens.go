@@ -53,3 +53,32 @@ func (i Identifier) GetType() string {
 func CreateIdentifier(value string) Identifier {
 	return Identifier{Value: value}
 }
+
+type Function interface {
+	GetType() string
+}
+
+type FunctionIdentifier struct {
+	Name Identifier
+}
+
+func (fi FunctionIdentifier) GetType() string {
+	return "FunctionIdentifier"
+}
+
+func CreateFunctionIdentifier(name Identifier) FunctionIdentifier {
+	return FunctionIdentifier{Name: name}
+}
+
+type FunctionLabel struct {
+	Name Identifier
+	Fn   Function
+}
+
+func (fl FunctionLabel) GetType() string {
+	return "FunctionLabel"
+}
+
+func CreateFunctionLabel(name Identifier, fn Function) FunctionLabel {
+	return FunctionLabel{Name: name, Fn: fn}
+}

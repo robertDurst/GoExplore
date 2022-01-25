@@ -57,23 +57,31 @@ func lex(line string) []lexicons.Lexicon {
 			argList = append(argList, lexicons.CreateArgList())
 			curListType = append(curListType, 2)
 		case ']':
-			if len(sexpList) == 0 {
+			if len(argList) == 0 {
 				panic("Too many right square brackets.")
 			}
 
+			// TODO: fix an error which exists somewhere around here
 			curListType = curListType[:len(curListType)-1]
 
 			if len(curListType) == 0 {
 				ls = append(ls, argList[len(argList)-1])
 				argList = argList[:len(argList)-1]
 			} else if curListType[len(curListType)-1] == 2 {
-				argList[len(argList)-2].Value = append(argList[len(argList)-2].Value, sexpList[len(sexpList)-1])
+				argList[len(argList)-2].Value = append(argList[len(argList)-2].Value, argList[len(argList)-1])
 				argList = argList[:len(argList)-1]
 			} else {
 				panic("An ArgList cannot be an element of a SExpression List.")
 			}
-				case ';':
-			ls = append(ls, lexicons.Semicolon{})
+		case ';':
+			semicolon := lexicons.Semicolon{}
+			if len(curListType) == 0 {
+				ls = append(ls, semicolon)
+			} else if curListType[len(curListType)-1] == 1 {
+				sexpList[len(sexpList)-1].Value = append(sexpList[len(sexpList)-1].Value, semicolon)
+			} else {
+				argList[len(argList)-1].Value = append(argList[len(argList)-1].Value, semicolon)
+			}		
 		case '~':
 			ls = append(ls, lexicons.Squiggle{})
 		case '@':
