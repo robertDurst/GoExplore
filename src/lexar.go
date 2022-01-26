@@ -3,6 +3,7 @@ package GoExplore
 import (
 	"bytes"
 	"errors"
+	"fmt"
 	"strings"
 	"unicode"
 )
@@ -86,12 +87,16 @@ func (le *LexarExecutor) Lex(line string) ([]Lexicon, error) {
 				return nil, err
 			}
 		// Punctuation
-		case ';':
-			le.addNonListLexiconToLexs(CreateSemicolon())
 		case '~':
 			le.addNonListLexiconToLexs(CreateSquiggle())
 		case '@':
 			le.addNonListLexiconToLexs(CreateAtSign())
+
+		// whitespace
+		case ' ':
+		case '\t':
+		case '\n':
+			continue
 
 		// Atom/Identifier
 		default:
@@ -128,6 +133,8 @@ func (le *LexarExecutor) Lex(line string) ([]Lexicon, error) {
 
 				// back track
 				curIndex--
+			} else {
+				return nil, errors.New(fmt.Sprintf("unrecognized character: %c", curChar))
 			}
 		}
 	}

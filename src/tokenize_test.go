@@ -36,32 +36,39 @@ func TestFunctionIdentifierTokenizes(t *testing.T) {
 }
 
 func TestFunctionLabelTokenizes(t *testing.T) {
-	InitialCheckAndParseForm(t, "FunctionLabel", "label[foo;cons]")
+	InitialCheckAndParseForm(t, "FunctionLabel", "label[foo nons]")
 }
 
 func TestFunctionLabelWithInnerFunctionLabelTokenizes(t *testing.T) {
-	InitialCheckAndParseForm(t, "FunctionLabel", "label[foo;label[foobar;sandwich]]")
+	InitialCheckAndParseForm(t, "FunctionLabel", "label[foo label[foobar sandwich]]")
 }
 
 func TestFunctionAtSignTokenizes(t *testing.T) {
-	InitialCheckAndParseForm(t, "FunctionAtSign", "@[[foo;bar;baz];label[some;cons]]")
+	InitialCheckAndParseForm(t, "FunctionAtSign", "@[[foo bar baz] label[some cons]]")
 }
 
 func TestFunctionAtSignInFunctionAtSignTokenizes(t *testing.T) {
-	InitialCheckAndParseForm(t, "FunctionAtSign", "@[[foo;bar;baz];@[[zee;car;zoom;pool];cons]]")
+	InitialCheckAndParseForm(t, "FunctionAtSign", "@[[foo bar baz] @[[zee car zoom pool] cons]]")
 }
 
 func TestManyFunctionsInsideFunctions(t *testing.T) {
-	InitialCheckAndParseForm(t, "FunctionLabel", "label[foo;label[foobar;@[[a;b;c;d;e];label[cons;bar]]]]")
+	InitialCheckAndParseForm(t, "FunctionLabel", "label[foo label[foobar @[[a b c d e] label[cons bar]]]]")
 }
 
 func TestSimpleConditionalStatementTokenizes(t *testing.T) {
 
-	InitialCheckAndParseForm(t, "ConditionalStatement", "[foo~T]")
+	InitialCheckAndParseForm(t, "ConditionalStatement", "[[foo~T]]")
 }
 
 func TestComplexConditionalStatementTokenizes(t *testing.T) {
-	form := InitialCheckAndParseForm(t, "ConditionalStatement", "[@[[foo;bar];cons]~label[cons;foo];bar~F;T~[foo~t;]]")
+	form := InitialCheckAndParseForm(t, "ConditionalStatement",
+		`
+[
+	[@[[foo bar] cons]~label[cons foo]]
+	[bar~F]
+	[T~[[foo~T]]]
+]
+`)
 
 	conditionalStatement := form.Value.(ConditionalStatement)
 	if len(conditionalStatement.ConditionalPairs) != 3 {

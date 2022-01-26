@@ -6,7 +6,6 @@ const (
 	Atom
 	Ident
 	List
-	Semicolon
 	Squiggle
 	Unknown = 99
 )
@@ -55,12 +54,6 @@ func CreateList() Lexicon {
 	lex.IsSExpression = true
 	lex.ListValues = make([]Lexicon, 0)
 	lex.Type = List
-	return lex
-}
-
-func CreateSemicolon() Lexicon {
-	lex := DefaultToken()
-	lex.Type = Semicolon
 	return lex
 }
 

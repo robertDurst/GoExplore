@@ -8,7 +8,7 @@ func TestEmptyInputLexar(t *testing.T) {
 	le := CreateLexarExecutor()
 	ls, err := le.Lex("")
 	if err != nil {
-		t.Errorf("did not expected an error")
+		t.Errorf("did not expect an error")
 	}
 
 	if len(ls) != 0 {
@@ -20,7 +20,7 @@ func TestAtomSExpression(t *testing.T) {
 	le := CreateLexarExecutor()
 	ls, err := le.Lex("ATOM")
 	if err != nil {
-		t.Errorf("did not expected an error")
+		t.Errorf("did not expect an error")
 	}
 
 	if len(ls) != 1 {
@@ -40,7 +40,7 @@ func TestAtomNotSExpression(t *testing.T) {
 	le := CreateLexarExecutor()
 	ls, err := le.Lex("atom")
 	if err != nil {
-		t.Errorf("did not expected an error")
+		t.Errorf("did not expect an error")
 	}
 
 	if len(ls) != 1 {
@@ -64,7 +64,7 @@ func TestListWithAtoms(t *testing.T) {
 	le := CreateLexarExecutor()
 	ls, err := le.Lex("(HELLO WORLD123)")
 	if err != nil {
-		t.Errorf("did not expected an error")
+		t.Errorf("did not expect an error")
 	}
 
 	if len(ls) != 1 {
@@ -89,7 +89,7 @@ func TestListWithinList(t *testing.T) {
 	le := CreateLexarExecutor()
 	ls, err := le.Lex("(HELLO (WORLD5 ((BAR))) FOO)")
 	if err != nil {
-		t.Errorf("did not expected an error")
+		t.Errorf("did not expect an error")
 	}
 
 	if len(ls) != 1 {
@@ -110,24 +110,28 @@ func TestListWithinList(t *testing.T) {
 	}
 }
 
-func TestPanicWhenArgListIsElementOfSExpressionList(t *testing.T) {
+func TestErrorWhenArgListIsElementOfSExpressionList(t *testing.T) {
 	AssertError(t, "(HELLO WORLD [WHAT UP])")
 }
 
-func TestPanicWhenMissingArgListEndParen(t *testing.T) {
+func TestErrorWhenMissingArgListEndParen(t *testing.T) {
 	AssertError(t, "label[foo;label[foobar;@[[a;b;c;d;e];label[cons;bar]]]")
 }
 
-func TestPanicWhenMissingSExpListEndParen(t *testing.T) {
+func TestErrorWhenMissingSExpListEndParen(t *testing.T) {
 	AssertError(t, "((hello)")
 }
 
-func TestPanicWhenMissingArgListTooManyEndParen(t *testing.T) {
-	AssertError(t, "label[foo;label[foobar;@[[a;b;c;d;e];label[cons;bar]]]]]")
+func TestErrorWhenMissingArgListTooManyEndParen(t *testing.T) {
+	AssertError(t, "label[foo label[foobar @[[a b c d e] label[cons bar]]]]]")
 }
 
-func TestPanicWhenMissingSExpListTooManyEndParen(t *testing.T) {
+func TestErrorWhenMissingSExpListTooManyEndParen(t *testing.T) {
 	AssertError(t, "((hello)))")
+}
+
+func TestErrorOnUnexpectedCharacter(t *testing.T) {
+	AssertError(t, "((hello;))")
 }
 
 func AssertError(t *testing.T, input string) {

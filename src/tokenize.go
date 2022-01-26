@@ -135,7 +135,7 @@ func (t Tokenizer) parseForm2(lexs []Lexicon) Form {
 		return CreateForm(functionAtSign)
 
 	default:
-		panic("Unexpected lexicon received in ParseForm2")
+		panic(fmt.Sprintf("Unexpected lexicon received in ParseForm2. Received %d", cur.Type))
 	}
 }
 
@@ -154,11 +154,7 @@ func (t Tokenizer) parseFunctionLabel(cur Lexicon) Token {
 
 	identifier := CreateIdentifier(cur.Value)
 
-	if cur.ListValues[1].Type != Semicolon {
-		panic("Expected Identifier of 'label' ArgList to be followed by a Semicolon")
-	}
-
-	function := t.parseFunction(cur.ListValues[2:])
+	function := t.parseFunction(cur.ListValues[1:])
 
 	functionLabel := CreateFunctionLabel(identifier, function)
 	return functionLabel
@@ -224,21 +220,10 @@ func (t Tokenizer) parseFunctionAtSign(cur Lexicon) Function {
 
 		i++
 
-		if i < len(varListArgList.Value) {
-			if varListArgList.ListValues[i].Type != Semicolon {
-				panic("Expected ';' to separate variables in VarList")
-			}
-
-			i++
-		}
 		varList = append(varList, variable)
 	}
 
-	if cur.ListValues[1].Type != Semicolon {
-		panic("Expected Identifier of FunctionAtSign's VarList to be followed by a Semicolon")
-	}
-
-	form := t.parseForm2(cur.ListValues[2:])
+	form := t.parseForm2(cur.ListValues[1:])
 	functionAtSign := CreateFunctionAtSign(varList, form)
 	return functionAtSign
 }
@@ -252,43 +237,31 @@ func (t Tokenizer) parseConditionalStatement(cur Lexicon) ConditionalStatement {
 
 	i := 0
 	for i < len(cur.ListValues) {
-
-		predicateFormArgs := make([]Lexicon, 0)
-		for {
-			if i >= len(cur.ListValues) {
-				panic("Expected ConditionalPair of form: FORM~FORM")
-			}
-
-			if cur.ListValues[i].Type == Squiggle {
-				i++
-				break
-			} else {
-				predicateFormArgs = append(predicateFormArgs, cur.ListValues[i])
-			}
-
-			i++
+		curArgList := cur.ListValues[i]
+		if curArgList.Type != ArgList {
+			panic(fmt.Sprintf("expected each conditional to be an ArgList. Received %d.", cur.Type))
 		}
 
-		resultFormArgs := make([]Lexicon, 0)
-		for {
-			if i >= len(cur.ListValues) {
+		predicateEndIndex := 0
+		resultStartIndex := 0
+		for j, calVal := range curArgList.ListValues {
+			if predicateEndIndex == resultStartIndex && calVal.Type == Squiggle {
+				predicateEndIndex = j
+				resultStartIndex = j + 1
 				break
 			}
-
-			if cur.ListValues[i].Type == Semicolon {
-				i++
-				break
-			} else {
-				resultFormArgs = append(resultFormArgs, cur.ListValues[i])
-			}
-
-			i++
 		}
 
-		predicate := t.parseForm2(predicateFormArgs)
-		result := t.parseForm2(resultFormArgs)
+		if predicateEndIndex == resultStartIndex || predicateEndIndex < 0 {
+			panic("incorrect form for ConditionalPair")
+		}
+
+		predicate := t.parseForm2(curArgList.ListValues[0:predicateEndIndex])
+		result := t.parseForm2(curArgList.ListValues[resultStartIndex:])
 		conditionalPair := CreateConditionalPair(predicate, result)
 		conditionalStatement.ConditionalPairs = append(conditionalStatement.ConditionalPairs, conditionalPair)
+
+		i++
 	}
 
 	return conditionalStatement

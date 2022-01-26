@@ -15,13 +15,13 @@
 <form> ::= <constant> | 
            <variable> |
            <function>[<argument>;...;<argument>] |
-           [<form>~<form>;...;<form>~<form>]
+           [[<form>~<form>]...[<form>~<form>]]
 <constant> ::= <S-expression>
 <variable> ::= <identifier>
 <function> ::= <identifier> | 
-               @[<var list>;<form>] |
-               label[<identifier>;<function>]
-<var list> ::= [<variable>;...;<variable>]
+               @[<var list> <form>] |
+               label[<identifier><function>]
+<var list> ::= [<variable> ... <variable>]
 <argument> ::= <form>
 <identifier> ::= <letter><id part>
 <id part> ::= <empty> | <letter><id part> | <number><id part>
