@@ -22,7 +22,7 @@ func Tokenize(lexs []Lexicon) (Token, error) {
 func parseForm(cur Lexicon) (Token, error) {
 	switch cur.Type {
 	case Atom, List:
-		return CreateConstant(cur.Value), nil
+		return CreateSExpression(cur), nil
 
 	case Identifier:
 		return CreateVariable(cur.Value), nil

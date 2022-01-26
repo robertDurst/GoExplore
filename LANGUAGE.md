@@ -12,11 +12,10 @@
 ## Meta-Language
 
 ```
-<form> ::= <constant> | 
+<form> ::= <S-expression> | 
            <variable> |
            <function>[<argument>;...;<argument>] |
            [[<form>~<form>]...[<form>~<form>]]
-<constant> ::= <S-expression>
 <variable> ::= <identifier>
 <function> ::= <identifier> | 
                @[<var list> <form>] |

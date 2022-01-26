@@ -18,11 +18,11 @@ func TestEmptyInputTokenizer(t *testing.T) {
 }
 
 func TestSimpleConstantTokenizes(t *testing.T) {
-	InitialCheckAndParseToken(t, "Constant", "ATOM")
+	InitialCheckAndParseToken(t, "SExpression", "ATOM")
 }
 
 func TestListWithinListTokenizesToConstant(t *testing.T) {
-	InitialCheckAndParseToken(t, "Constant", "(HELLO (WORLD5 ((BAR))) FOO)")
+	InitialCheckAndParseToken(t, "SExpression", "(HELLO (WORLD5 ((BAR))) FOO)")
 }
 
 func TestSimpleVariableTokenizes(t *testing.T) {
