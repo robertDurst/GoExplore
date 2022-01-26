@@ -32,8 +32,11 @@ func RunGoExplore(input string) {
 	fmt.Println(input)
 	fmt.Printf("======================\n\n")
 
-	tokens := lex(input)
-	for _, token := range tokens {
-		fmt.Printf("[%s]: %s\n", token.GetType(), token.GetValue())
+	lexicons := lex(input)
+	for _, l := range lexicons {
+		fmt.Printf("[%s]: %s\n", l.GetType(), l)
 	}
+	// tokenizer := CreateTokenizer()
+	// token := tokenizer.tokenize(lexicons)
+	// fmt.Printf("[%s]: %s", token.GetType(), token)
 }

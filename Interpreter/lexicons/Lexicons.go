@@ -2,5 +2,8 @@ package lexicons
 
 type Lexicon interface {
 	GetType() string
-	GetValue() string
+}
+
+type SExpression interface {
+	GetType() string
 }

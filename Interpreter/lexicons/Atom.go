@@ -1,7 +1,8 @@
 package lexicons
 
 type Atom struct {
-	value string
+	value         string
+	isSExpression bool
 }
 
 func (a Atom) GetType() string {
@@ -11,6 +12,10 @@ func (a Atom) GetValue() string {
 	return a.value
 }
 
-func CreateAtom(value string) Atom {
-	return Atom{value: value}
+func (a Atom) IsSExpression() bool {
+	return a.isSExpression
+}
+
+func CreateAtom(value string, isSExpression bool) Atom {
+	return Atom{value: value, isSExpression: isSExpression}
 }
