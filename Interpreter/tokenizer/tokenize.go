@@ -1,8 +1,9 @@
 package tokenizer
 
 import (
-	"GoExplore/interpreter/lexar"
 	"fmt"
+
+	"github.com/robertDurst/GoExplore/interpreter/lexar"
 )
 
 type Tokenizer struct {

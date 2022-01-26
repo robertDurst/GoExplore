@@ -1,8 +1,9 @@
 package tokenizer
 
 import (
-	"GoExplore/interpreter/lexar"
 	"testing"
+
+	"github.com/robertDurst/GoExplore/interpreter/lexar"
 )
 
 func TestEmptyInputTokenizer(t *testing.T) {
