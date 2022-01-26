@@ -1,4 +1,4 @@
-package lexar
+package GoExplore
 
 import (
 	"bytes"
@@ -121,7 +121,7 @@ func (le *LexarExecutor) Lex(line string) ([]Lexicon, error) {
 				if isSExpression {
 					atom = CreateAtom(curAtom.String())
 				} else {
-					atom = CreateIdentifier(curAtom.String())
+					atom = CreateIdent(curAtom.String())
 				}
 
 				le.addNonListLexiconToLexs(atom)

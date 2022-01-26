@@ -1,19 +1,17 @@
-package tokenizer
+package GoExplore
 
 import (
 	"fmt"
-
-	"github.com/robertDurst/GoExplore/interpreter/lexar"
 )
 
 type Tokenizer struct {
-	lexs               []lexar.Lexicon
+	lexs               []Lexicon
 	tks                []Token
 	knownFunctionNames map[string]bool
 	i                  int
 }
 
-func CreateTokenizer(lexs []lexar.Lexicon) Tokenizer {
+func CreateTokenizer(lexs []Lexicon) Tokenizer {
 	knownFunctionNames := map[string]bool{
 		"cons": true,
 		"cdr":  true,
@@ -46,14 +44,14 @@ func (t *Tokenizer) parseForm() {
 	cur := t.lexs[t.i]
 
 	switch cur.Type {
-	case lexar.Atom:
+	case Atom:
 		constant := CreateConstant(cur.Value)
 		form := CreateForm(constant)
 		t.tks = append(t.tks, form)
 		t.i++
 		return
 
-	case lexar.Identifier:
+	case Ident:
 		identifier := CreateIdentifier(cur.Value)
 		if _, ok := t.knownFunctionNames[cur.Value]; ok {
 			// function starting identifier
@@ -75,7 +73,7 @@ func (t *Tokenizer) parseForm() {
 		t.i++
 		return
 
-	case lexar.List:
+	case List:
 		// lists are SExpressions, thus must be a constant
 		constant := CreateConstant(cur.Value)
 		form := CreateForm(constant)
@@ -83,14 +81,14 @@ func (t *Tokenizer) parseForm() {
 		t.i++
 		return
 
-	case lexar.ArgList:
+	case ArgList:
 		conditionalStatement := t.parseConditionalStatement(cur)
 		form := CreateForm(conditionalStatement)
 		t.tks = append(t.tks, form)
 		t.i++
 		return
 
-	case lexar.AtSign:
+	case AtSign:
 		t.i++
 		functionAtSign := t.parseFunctionAtSign(t.lexs[t.i])
 		form := CreateForm(functionAtSign)
@@ -100,15 +98,15 @@ func (t *Tokenizer) parseForm() {
 	}
 }
 
-func (t Tokenizer) parseForm2(lexs []lexar.Lexicon) Form {
+func (t Tokenizer) parseForm2(lexs []Lexicon) Form {
 	cur := lexs[0]
 
 	switch cur.Type {
-	case lexar.Atom:
+	case Atom:
 		constant := CreateConstant(cur.Value)
 		return CreateForm(constant)
 
-	case lexar.Identifier:
+	case Ident:
 		identifier := CreateIdentifier(cur.Value)
 		if _, ok := t.knownFunctionNames[cur.Value]; ok {
 			// function starting identifier
@@ -123,16 +121,16 @@ func (t Tokenizer) parseForm2(lexs []lexar.Lexicon) Form {
 			return CreateForm(variable)
 		}
 
-	case lexar.List:
+	case List:
 		// lists are SExpressions, thus must be a constant
 		constant := CreateConstant(cur.Value)
 		return CreateForm(constant)
 
-	case lexar.ArgList:
+	case ArgList:
 		conditionalStatement := t.parseConditionalStatement(lexs[0])
 		return CreateForm(conditionalStatement)
 
-	case lexar.AtSign:
+	case AtSign:
 		functionAtSign := t.parseFunctionAtSign(lexs[1])
 		return CreateForm(functionAtSign)
 
@@ -143,20 +141,20 @@ func (t Tokenizer) parseForm2(lexs []lexar.Lexicon) Form {
 
 // label[<identifier>;<function>]
 // IN: ArgList
-func (t Tokenizer) parseFunctionLabel(cur lexar.Lexicon) Token {
-	if cur.Type != lexar.ArgList {
+func (t Tokenizer) parseFunctionLabel(cur Lexicon) Token {
+	if cur.Type != ArgList {
 		panic("Expected ArgList to follow 'label'")
 	}
 
 	identifierValue := cur.ListValues[0]
 
-	if identifierValue.Type != lexar.Identifier {
+	if identifierValue.Type != Ident {
 		panic(fmt.Sprintf("Expected Identifier to be first element in 'label'. Received %d.", identifierValue.Type))
 	}
 
 	identifier := CreateIdentifier(cur.Value)
 
-	if cur.ListValues[1].Type != lexar.Semicolon {
+	if cur.ListValues[1].Type != Semicolon {
 		panic("Expected Identifier of 'label' ArgList to be followed by a Semicolon")
 	}
 
@@ -172,9 +170,9 @@ func (t Tokenizer) parseFunctionLabel(cur lexar.Lexicon) Token {
 	FunctionLabel      = label[<identifier>;<function>]
 	FunctionAtSign     = @[<var list>;<form>] |
 */
-func (t Tokenizer) parseFunction(fnLexs []lexar.Lexicon) Function {
+func (t Tokenizer) parseFunction(fnLexs []Lexicon) Function {
 	cur := fnLexs[0]
-	if cur.Type == lexar.Identifier {
+	if cur.Type == Ident {
 		identifier := CreateIdentifier(cur.Value)
 		if _, ok := t.knownFunctionNames[cur.Value]; ok {
 			// function starting identifier, thus should end here
@@ -183,7 +181,7 @@ func (t Tokenizer) parseFunction(fnLexs []lexar.Lexicon) Function {
 			}
 			return CreateFunctionIdentifier(identifier)
 		} else if cur.Value == "label" {
-			if len(fnLexs) != 2 && fnLexs[1].Type != lexar.ArgList {
+			if len(fnLexs) != 2 && fnLexs[1].Type != ArgList {
 				panic("Expected ArgList to be final lexicon for FunctionLabel")
 			}
 			return t.parseFunctionLabel(fnLexs[1])
@@ -194,8 +192,8 @@ func (t Tokenizer) parseFunction(fnLexs []lexar.Lexicon) Function {
 			}
 			return CreateFunctionIdentifier(identifier)
 		}
-	} else if fnLexs[0].Type == lexar.AtSign {
-		if len(fnLexs) != 2 && fnLexs[1].Type != lexar.ArgList {
+	} else if fnLexs[0].Type == AtSign {
+		if len(fnLexs) != 2 && fnLexs[1].Type != ArgList {
 			panic("Expected ArgList to be final lexicon for FunctionAtSign")
 		}
 		return t.parseFunctionAtSign(fnLexs[1])
@@ -206,12 +204,12 @@ func (t Tokenizer) parseFunction(fnLexs []lexar.Lexicon) Function {
 
 // @[<var list>;<form>] |
 // IN: ArgList
-func (t Tokenizer) parseFunctionAtSign(cur lexar.Lexicon) Function {
-	if cur.Type != lexar.ArgList {
+func (t Tokenizer) parseFunctionAtSign(cur Lexicon) Function {
+	if cur.Type != ArgList {
 		panic(fmt.Sprintf("Expected ArgList to follow 'AtSign'. Received %d.", cur.Type))
 	}
 
-	if cur.ListValues[0].Type != lexar.ArgList {
+	if cur.ListValues[0].Type != ArgList {
 		panic("Expected Atom to be first element in 'label' ArgList")
 	}
 
@@ -219,7 +217,7 @@ func (t Tokenizer) parseFunctionAtSign(cur lexar.Lexicon) Function {
 	varList := make([]Variable, 0)
 	i := 0
 	for i < len(varListArgList.Value) {
-		if varListArgList.ListValues[i].Type != lexar.Atom || varListArgList.ListValues[i].IsSExpression {
+		if varListArgList.ListValues[i].Type != Atom || varListArgList.ListValues[i].IsSExpression {
 			panic("Expected only variables (a.k.a. identifiers) in VarList")
 		}
 		variable := CreateVariable(CreateIdentifier(varListArgList.ListValues[i].Value))
@@ -227,7 +225,7 @@ func (t Tokenizer) parseFunctionAtSign(cur lexar.Lexicon) Function {
 		i++
 
 		if i < len(varListArgList.Value) {
-			if varListArgList.ListValues[i].Type != lexar.Semicolon {
+			if varListArgList.ListValues[i].Type != Semicolon {
 				panic("Expected ';' to separate variables in VarList")
 			}
 
@@ -236,7 +234,7 @@ func (t Tokenizer) parseFunctionAtSign(cur lexar.Lexicon) Function {
 		varList = append(varList, variable)
 	}
 
-	if cur.ListValues[1].Type != lexar.Semicolon {
+	if cur.ListValues[1].Type != Semicolon {
 		panic("Expected Identifier of FunctionAtSign's VarList to be followed by a Semicolon")
 	}
 
@@ -245,8 +243,8 @@ func (t Tokenizer) parseFunctionAtSign(cur lexar.Lexicon) Function {
 	return functionAtSign
 }
 
-func (t Tokenizer) parseConditionalStatement(cur lexar.Lexicon) ConditionalStatement {
-	if cur.Type != lexar.ArgList {
+func (t Tokenizer) parseConditionalStatement(cur Lexicon) ConditionalStatement {
+	if cur.Type != ArgList {
 		panic(fmt.Sprintf("Expected ArgList for ConditionalStatement. Received %d.", cur.Type))
 	}
 
@@ -255,13 +253,13 @@ func (t Tokenizer) parseConditionalStatement(cur lexar.Lexicon) ConditionalState
 	i := 0
 	for i < len(cur.ListValues) {
 
-		predicateFormArgs := make([]lexar.Lexicon, 0)
+		predicateFormArgs := make([]Lexicon, 0)
 		for {
 			if i >= len(cur.ListValues) {
 				panic("Expected ConditionalPair of form: FORM~FORM")
 			}
 
-			if cur.ListValues[i].Type == lexar.Squiggle {
+			if cur.ListValues[i].Type == Squiggle {
 				i++
 				break
 			} else {
@@ -271,13 +269,13 @@ func (t Tokenizer) parseConditionalStatement(cur lexar.Lexicon) ConditionalState
 			i++
 		}
 
-		resultFormArgs := make([]lexar.Lexicon, 0)
+		resultFormArgs := make([]Lexicon, 0)
 		for {
 			if i >= len(cur.ListValues) {
 				break
 			}
 
-			if cur.ListValues[i].Type == lexar.Semicolon {
+			if cur.ListValues[i].Type == Semicolon {
 				i++
 				break
 			} else {

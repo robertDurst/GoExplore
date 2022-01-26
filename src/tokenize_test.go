@@ -1,13 +1,11 @@
-package tokenizer
+package GoExplore
 
 import (
 	"testing"
-
-	"github.com/robertDurst/GoExplore/interpreter/lexar"
 )
 
 func TestEmptyInputTokenizer(t *testing.T) {
-	le := lexar.CreateLexarExecutor()
+	le := CreateLexarExecutor()
 	ls, err := le.Lex("")
 	if err != nil {
 		t.Errorf("did not expect a lexar error")
@@ -84,7 +82,7 @@ func TestComplexConditionalStatementTokenizes(t *testing.T) {
 }
 
 func InitialCheckAndParseForm(t *testing.T, expectedTopLevelType string, input string) Form {
-	le := lexar.CreateLexarExecutor()
+	le := CreateLexarExecutor()
 	ls, err := le.Lex(input)
 	if err != nil {
 		t.Errorf("did not expect a lexar error")

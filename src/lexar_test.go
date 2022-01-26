@@ -1,4 +1,4 @@
-package lexar
+package GoExplore
 
 import (
 	"testing"
@@ -47,7 +47,7 @@ func TestAtomNotSExpression(t *testing.T) {
 		t.Errorf("Expected 1 top-level lexicon. Received %d.", len(ls[0].ListValues))
 	}
 
-	if ls[0].Type != Identifier {
+	if ls[0].Type != Ident {
 		t.Errorf("Expected top-level lexicon to be an Atom. Received %d.", ls[0].Type)
 	}
 

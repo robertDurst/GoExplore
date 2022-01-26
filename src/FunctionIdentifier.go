@@ -1,4 +1,4 @@
-package tokenizer
+package GoExplore
 
 type FunctionIdentifier struct {
 	Name Identifier

@@ -1,10 +1,10 @@
-package lexar
+package GoExplore
 
 const (
 	ArgList = iota
 	AtSign
 	Atom
-	Identifier
+	Ident
 	List
 	Semicolon
 	Squiggle
@@ -43,10 +43,10 @@ func CreateAtSign() Lexicon {
 	return lex
 }
 
-func CreateIdentifier(value string) Lexicon {
+func CreateIdent(value string) Lexicon {
 	lex := DefaultToken()
 	lex.Value = value
-	lex.Type = Identifier
+	lex.Type = Ident
 	return lex
 }
 

@@ -1,4 +1,4 @@
-package tokenizer
+package GoExplore
 
 type Variable struct {
 	Value Identifier
