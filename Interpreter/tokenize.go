@@ -85,7 +85,11 @@ func (t *Tokenizer) parseForm() {
 		return
 
 	case "ArgList":
-		panic("Not implemented")
+		conditionalStatement := t.parseConditionalStatement(cur)
+		form := tokens.CreateForm(conditionalStatement)
+		t.tks = append(t.tks, form)
+		t.i++
+		return
 
 	case "AtSign":
 		t.i++
@@ -129,7 +133,8 @@ func (t Tokenizer) parseForm2(lexs []lexicons.Lexicon) tokens.Form {
 		return tokens.CreateForm(constant)
 
 	case "ArgList":
-		panic("Not implemented")
+		conditionalStatement := t.parseConditionalStatement(lexs[0])
+		return tokens.CreateForm(conditionalStatement)
 
 	case "AtSign":
 		functionAtSign := t.parseFunctionAtSign(lexs[1])
@@ -248,4 +253,56 @@ func (t Tokenizer) parseFunctionAtSign(cur lexicons.Lexicon) tokens.Function {
 	form := t.parseForm2(argList.Value[2:])
 	functionAtSign := tokens.CreateFunctionAtSign(varList, form)
 	return functionAtSign
+}
+
+func (t Tokenizer) parseConditionalStatement(cur lexicons.Lexicon) tokens.ConditionalStatement {
+	if cur.GetType() != "ArgList" {
+		panic(fmt.Sprintf("Expected ArgList for ConditionalStatement. Received %s.", cur.GetType()))
+	}
+
+	conditionalStatement := tokens.CreateConditionalStatement()
+	argList := cur.(lexicons.ArgList)
+
+	i := 0
+	for i < len(argList.Value) {
+
+		predicateFormArgs := make([]lexicons.Lexicon, 0)
+		for {
+			if i >= len(argList.Value) {
+				panic("Expected ConditionalPair of form: FORM~FORM")
+			}
+
+			if argList.Value[i].GetType() == "Squiggle" {
+				i++
+				break
+			} else {
+				predicateFormArgs = append(predicateFormArgs, argList.Value[i])
+			}
+
+			i++
+		}
+
+		resultFormArgs := make([]lexicons.Lexicon, 0)
+		for {
+			if i >= len(argList.Value) {
+				break
+			}
+
+			if argList.Value[i].GetType() == "Semicolon" {
+				i++
+				break
+			} else {
+				resultFormArgs = append(resultFormArgs, argList.Value[i])
+			}
+
+			i++
+		}
+
+		predicate := t.parseForm2(predicateFormArgs)
+		result := t.parseForm2(resultFormArgs)
+		conditionalPair := tokens.CreateConditionalPair(predicate, result)
+		conditionalStatement.ConditionalPairs = append(conditionalStatement.ConditionalPairs, conditionalPair)
+	}
+
+	return conditionalStatement
 }

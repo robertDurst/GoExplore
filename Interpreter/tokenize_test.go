@@ -185,3 +185,58 @@ func TestManyFunctionsInsideFunctions(t *testing.T) {
 		t.Errorf("Expected form's inner value to be a FunctionLabel. Received %s.", form.Value.GetType())
 	}
 }
+
+func TestSimpleConditionalStatementTokenizes(t *testing.T) {
+	ls := lex("[foo~T]")
+	tokenizer := CreateTokenizer(ls)
+	tks := tokenizer.tokenize()
+
+	if len(tks) != 1 {
+		t.Errorf("Expected 1 tokens from function label. Received %d.", len(tks))
+	}
+
+	if tks[0].GetType() != "Form" {
+		t.Errorf("Expected outer token to be of type Form. Received %s.", tks[0].GetType())
+	}
+
+	form := tks[0].(tokens.Form)
+	if form.Value.GetType() != "ConditionalStatement" {
+		t.Errorf("Expected form's inner value to be a FunctionLabel. Received %s.", form.Value.GetType())
+	}
+}
+
+func TestComplexConditionalStatementTokenizes(t *testing.T) {
+	ls := lex("[@[[foo;bar];cons]~label[cons;foo];bar~F;T~[foo~t;]]")
+	tokenizer := CreateTokenizer(ls)
+	tks := tokenizer.tokenize()
+
+	if len(tks) != 1 {
+		t.Errorf("Expected 1 tokens from function label. Received %d.", len(tks))
+	}
+
+	if tks[0].GetType() != "Form" {
+		t.Errorf("Expected outer token to be of type Form. Received %s.", tks[0].GetType())
+	}
+
+	form := tks[0].(tokens.Form)
+	if form.Value.GetType() != "ConditionalStatement" {
+		t.Errorf("Expected form's inner value to be a FunctionLabel. Received %s.", form.Value.GetType())
+	}
+
+	conditionalStatement := form.Value.(tokens.ConditionalStatement)
+	if len(conditionalStatement.ConditionalPairs) != 3 {
+		t.Errorf("Expected 3 conditional pairs. Received %d.", len(conditionalStatement.ConditionalPairs))
+	}
+
+	conditionalPair := conditionalStatement.ConditionalPairs[0]
+	if conditionalPair.GetType() != "ConditionalPair" {
+		t.Errorf("Expected 1st conditional pair. Received %s.", conditionalPair.GetType())
+	}
+	if conditionalPair.Predicate.Value.GetType() != "FunctionAtSign" {
+		t.Errorf("Expected 1st conditional pair predicate token to be of type FunctionAtSign. Received %s.", conditionalPair.Predicate.Value.GetType())
+	}
+
+	if conditionalPair.Result.Value.GetType() != "FunctionLabel" {
+		t.Errorf("Expected 1st conditional pair result token to be of type FunctionLabel. Received %s.", conditionalPair.Result.Value.GetType())
+	}
+}

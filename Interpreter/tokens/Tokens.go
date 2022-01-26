@@ -107,3 +107,28 @@ func (fas FunctionAtSign) GetType() string {
 func CreateFunctionAtSign(vars VarList, rest Form) FunctionAtSign {
 	return FunctionAtSign{Vars: vars, Rest: rest}
 }
+
+type ConditionalStatement struct {
+	ConditionalPairs []ConditionalPair
+}
+
+func (cs ConditionalStatement) GetType() string {
+	return "ConditionalStatement"
+}
+
+func CreateConditionalStatement() ConditionalStatement {
+	return ConditionalStatement{ConditionalPairs: make([]ConditionalPair, 0)}
+}
+
+type ConditionalPair struct {
+	Predicate Form
+	Result    Form
+}
+
+func (cp ConditionalPair) GetType() string {
+	return "ConditionalPair"
+}
+
+func CreateConditionalPair(predicate Form, result Form) ConditionalPair {
+	return ConditionalPair{Predicate: predicate, Result: result}
+}
