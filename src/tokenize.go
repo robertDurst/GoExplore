@@ -6,31 +6,26 @@ import (
 )
 
 func Tokenize(lexs []Lexicon) (Token, error) {
-	if len(lexs) == 0 {
+	switch {
+	case len(lexs) == 0:
 		return nil, errors.New("received no lexicons to tokenize")
-	}
-
-	if lexs[0].Type == AtSign {
+	case lexs[0].Type == AtSign:
 		return parseFunctionAtSign(lexs[1])
-	}
-
-	if lexs[0].Type == Identifier && lexs[0].Value == "label" {
+	case lexs[0].Type == Identifier && lexs[0].Value == "label":
 		return parseFunctionLabel(lexs[1])
-	}
+	default:
+		return parseForm(lexs[0])
 
-	return parseForm(lexs[0])
+	}
 }
 
 func parseForm(cur Lexicon) (Token, error) {
 	switch cur.Type {
-	case Atom:
+	case Atom, List:
 		return CreateConstant(cur.Value), nil
 
 	case Identifier:
 		return CreateVariable(cur.Value), nil
-
-	case List:
-		return CreateConstant(cur.Value), nil
 
 	case ArgList:
 		return parseConditionalStatement(cur)
@@ -45,14 +40,14 @@ func parseFunctionLabel(cur Lexicon) (Token, error) {
 		return nil, err
 	}
 
-	Identifierifier := CreateVariable(cur.ListValues[0].Value)
+	identifier := CreateVariable(cur.ListValues[0].Value)
 
 	form, err := Tokenize(cur.ListValues[1:])
 	if err != nil {
 		return nil, err
 	}
 
-	functionLabel := CreateFunctionLabel(Identifierifier, form)
+	functionLabel := CreateFunctionLabel(identifier, form)
 	return functionLabel, nil
 }
 
