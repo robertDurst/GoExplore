@@ -1,14 +1,14 @@
 package GoExplore
 
 type FunctionLabel struct {
-	Name Identifier
-	Fn   Function
+	Name Token
+	Fn   Token
 }
 
 func (fl FunctionLabel) GetType() string {
 	return "FunctionLabel"
 }
 
-func CreateFunctionLabel(name Identifier, fn Function) FunctionLabel {
+func CreateFunctionLabel(name Token, fn Token) FunctionLabel {
 	return FunctionLabel{Name: name, Fn: fn}
 }

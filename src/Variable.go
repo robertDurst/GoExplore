@@ -1,13 +1,13 @@
 package GoExplore
 
 type Variable struct {
-	Value Identifier
+	Value string
 }
 
 func (v Variable) GetType() string {
 	return "Variable"
 }
 
-func CreateVariable(value Identifier) Variable {
+func CreateVariable(value string) Variable {
 	return Variable{Value: value}
 }

@@ -1,14 +1,14 @@
 package GoExplore
 
 type FunctionAtSign struct {
-	Vars []Variable
-	Rest Form
+	Vars []Token
+	Rest Token
 }
 
 func (fas FunctionAtSign) GetType() string {
 	return "FunctionAtSign"
 }
 
-func CreateFunctionAtSign(vars []Variable, rest Form) FunctionAtSign {
+func CreateFunctionAtSign(vars []Token, rest Token) FunctionAtSign {
 	return FunctionAtSign{Vars: vars, Rest: rest}
 }

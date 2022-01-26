@@ -11,11 +11,9 @@ func TestEmptyInputTokenizer(t *testing.T) {
 		t.Errorf("did not expect a lexar error")
 	}
 
-	tokenizer := CreateTokenizer(ls)
-	tks := tokenizer.tokenize()
-
-	if len(tks) != 0 {
-		t.Errorf("Expected 0 tokens from empty input. Received %d.", len(tks))
+	_, err = Tokenize(ls)
+	if err == nil {
+		t.Errorf("expected an error")
 	}
 }
 
@@ -29,10 +27,6 @@ func TestListWithinListTokenizesToConstant(t *testing.T) {
 
 func TestSimpleVariableTokenizes(t *testing.T) {
 	InitialCheckAndParseForm(t, "Variable", "foo")
-}
-
-func TestFunctionIdentifierTokenizes(t *testing.T) {
-	InitialCheckAndParseForm(t, "FunctionIdentifier", "atom")
 }
 
 func TestFunctionLabelTokenizes(t *testing.T) {
@@ -79,12 +73,15 @@ func TestComplexConditionalStatementTokenizes(t *testing.T) {
 	if conditionalPair.GetType() != "ConditionalPair" {
 		t.Errorf("Expected 1st conditional pair. Received %s.", conditionalPair.GetType())
 	}
-	if conditionalPair.Predicate.Value.GetType() != "FunctionAtSign" {
-		t.Errorf("Expected 1st conditional pair predicate token to be of type FunctionAtSign. Received %s.", conditionalPair.Predicate.Value.GetType())
+
+	predicateForm := conditionalPair.Predicate.(Form).Value
+	if predicateForm.GetType() != "FunctionAtSign" {
+		t.Errorf("Expected 1st conditional pair predicate token to be of type FunctionAtSign. Received %s.", predicateForm.GetType())
 	}
 
-	if conditionalPair.Result.Value.GetType() != "FunctionLabel" {
-		t.Errorf("Expected 1st conditional pair result token to be of type FunctionLabel. Received %s.", conditionalPair.Result.Value.GetType())
+	resultForm := conditionalPair.Result.(Form).Value
+	if resultForm.GetType() != "FunctionLabel" {
+		t.Errorf("Expected 1st conditional pair result token to be of type FunctionLabel. Received %s.", resultForm.GetType())
 	}
 }
 
@@ -95,18 +92,16 @@ func InitialCheckAndParseForm(t *testing.T, expectedTopLevelType string, input s
 		t.Errorf("did not expect a lexar error")
 	}
 
-	tokenizer := CreateTokenizer(ls)
-	tks := tokenizer.tokenize()
-
-	if len(tks) != 1 {
-		t.Errorf("Expected 1 tokens from function label. Received %d.", len(tks))
+	tk, err := Tokenize(ls)
+	if err != nil {
+		t.Errorf("did not expect an error")
 	}
 
-	if tks[0].GetType() != "Form" {
-		t.Errorf("Expected outer token to be of type Form. Received %s.", tks[0].GetType())
+	if tk.GetType() != "Form" {
+		t.Errorf("Expected outer token to be of type Form. Received %s.", tk.GetType())
 	}
 
-	form := tks[0].(Form)
+	form := tk.(Form)
 	if form.Value.GetType() != expectedTopLevelType {
 		t.Errorf("Expected form's inner value to be a FunctionLabel. Received %s.", form.Value.GetType())
 	}
