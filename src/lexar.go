@@ -98,7 +98,7 @@ func (le *LexarExecutor) Lex(line string) ([]Lexicon, error) {
 		case '\n':
 			continue
 
-		// Atom/Identifier
+		// Atom/Identifierifier
 		default:
 			if unicode.IsLetter(rune(curChar)) {
 
@@ -126,7 +126,7 @@ func (le *LexarExecutor) Lex(line string) ([]Lexicon, error) {
 				if isSExpression {
 					atom = CreateAtom(curAtom.String())
 				} else {
-					atom = CreateIdent(curAtom.String())
+					atom = CreateIdentifier(curAtom.String())
 				}
 
 				le.addNonListLexiconToLexs(atom)

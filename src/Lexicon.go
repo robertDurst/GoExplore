@@ -4,7 +4,7 @@ const (
 	ArgList = iota
 	AtSign
 	Atom
-	Ident
+	Identifier
 	List
 	Squiggle
 	Unknown = 99
@@ -42,10 +42,10 @@ func CreateAtSign() Lexicon {
 	return lex
 }
 
-func CreateIdent(value string) Lexicon {
+func CreateIdentifier(value string) Lexicon {
 	lex := DefaultToken()
 	lex.Value = value
-	lex.Type = Ident
+	lex.Type = Identifier
 	return lex
 }
 

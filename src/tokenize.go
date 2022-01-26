@@ -11,48 +11,29 @@ func Tokenize(lexs []Lexicon) (Token, error) {
 	}
 
 	if lexs[0].Type == AtSign {
-		functionAtSign, err := parseFunctionAtSign(lexs[1])
-		if err != nil {
-			return nil, err
-		}
-
-		return CreateForm(functionAtSign), nil
+		return parseFunctionAtSign(lexs[1])
 	}
 
-	if lexs[0].Type == Ident && lexs[0].Value == "label" {
-		functionLabel, err := parseFunctionLabel(lexs[1])
-		if err != nil {
-			return nil, err
-		}
-
-		return CreateForm(functionLabel), nil
+	if lexs[0].Type == Identifier && lexs[0].Value == "label" {
+		return parseFunctionLabel(lexs[1])
 	}
 
-	form, err := parseForm(lexs[0])
-	if err != nil {
-		return nil, err
-	}
-
-	return form, nil
+	return parseForm(lexs[0])
 }
 
 func parseForm(cur Lexicon) (Token, error) {
 	switch cur.Type {
 	case Atom:
-		constant := CreateConstant(cur.Value)
-		return CreateForm(constant), nil
+		return CreateConstant(cur.Value), nil
 
-	case Ident:
-		variable := CreateVariable(cur.Value)
-		return CreateForm(variable), nil
+	case Identifier:
+		return CreateVariable(cur.Value), nil
 
 	case List:
-		constant := CreateConstant(cur.Value)
-		return CreateForm(constant), nil
+		return CreateConstant(cur.Value), nil
 
 	case ArgList:
-		conditionalStatement, err := parseConditionalStatement(cur)
-		return CreateForm(conditionalStatement), err
+		return parseConditionalStatement(cur)
 
 	default:
 		return nil, fmt.Errorf("unexpected lexicon received in parseForm. Received %d", cur.Type)
@@ -64,14 +45,14 @@ func parseFunctionLabel(cur Lexicon) (Token, error) {
 		return nil, err
 	}
 
-	identifier := CreateVariable(cur.ListValues[0].Value)
+	Identifierifier := CreateVariable(cur.ListValues[0].Value)
 
 	form, err := Tokenize(cur.ListValues[1:])
 	if err != nil {
 		return nil, err
 	}
 
-	functionLabel := CreateFunctionLabel(identifier, form)
+	functionLabel := CreateFunctionLabel(Identifierifier, form)
 	return functionLabel, nil
 }
 
@@ -86,7 +67,7 @@ func parseFunctionAtSign(cur Lexicon) (Token, error) {
 
 	varList := make([]Token, 0)
 	for _, varArg := range cur.ListValues[0].ListValues {
-		AssertType(varArg, Ident)
+		AssertType(varArg, Identifier)
 		variable := CreateVariable(varArg.Value)
 		varList = append(varList, variable)
 	}

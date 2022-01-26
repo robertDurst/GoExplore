@@ -18,44 +18,44 @@ func TestEmptyInputTokenizer(t *testing.T) {
 }
 
 func TestSimpleConstantTokenizes(t *testing.T) {
-	InitialCheckAndParseForm(t, "Constant", "ATOM")
+	InitialCheckAndParseToken(t, "Constant", "ATOM")
 }
 
 func TestListWithinListTokenizesToConstant(t *testing.T) {
-	InitialCheckAndParseForm(t, "Constant", "(HELLO (WORLD5 ((BAR))) FOO)")
+	InitialCheckAndParseToken(t, "Constant", "(HELLO (WORLD5 ((BAR))) FOO)")
 }
 
 func TestSimpleVariableTokenizes(t *testing.T) {
-	InitialCheckAndParseForm(t, "Variable", "foo")
+	InitialCheckAndParseToken(t, "Variable", "foo")
 }
 
 func TestFunctionLabelTokenizes(t *testing.T) {
-	InitialCheckAndParseForm(t, "FunctionLabel", "label[foo nons]")
+	InitialCheckAndParseToken(t, "FunctionLabel", "label[foo nons]")
 }
 
 func TestFunctionLabelWithInnerFunctionLabelTokenizes(t *testing.T) {
-	InitialCheckAndParseForm(t, "FunctionLabel", "label[foo label[foobar sandwich]]")
+	InitialCheckAndParseToken(t, "FunctionLabel", "label[foo label[foobar sandwich]]")
 }
 
 func TestFunctionAtSignTokenizes(t *testing.T) {
-	InitialCheckAndParseForm(t, "FunctionAtSign", "@[[foo bar baz] label[some cons]]")
+	InitialCheckAndParseToken(t, "FunctionAtSign", "@[[foo bar baz] label[some cons]]")
 }
 
 func TestFunctionAtSignInFunctionAtSignTokenizes(t *testing.T) {
-	InitialCheckAndParseForm(t, "FunctionAtSign", "@[[foo bar baz] @[[zee car zoom pool] cons]]")
+	InitialCheckAndParseToken(t, "FunctionAtSign", "@[[foo bar baz] @[[zee car zoom pool] cons]]")
 }
 
 func TestManyFunctionsInsideFunctions(t *testing.T) {
-	InitialCheckAndParseForm(t, "FunctionLabel", "label[foo label[foobar @[[a b c d e] label[cons bar]]]]")
+	InitialCheckAndParseToken(t, "FunctionLabel", "label[foo label[foobar @[[a b c d e] label[cons bar]]]]")
 }
 
 func TestSimpleConditionalStatementTokenizes(t *testing.T) {
 
-	InitialCheckAndParseForm(t, "ConditionalStatement", "[[foo~T]]")
+	InitialCheckAndParseToken(t, "ConditionalStatement", "[[foo~T]]")
 }
 
 func TestComplexConditionalStatementTokenizes(t *testing.T) {
-	form := InitialCheckAndParseForm(t, "ConditionalStatement",
+	tk := InitialCheckAndParseToken(t, "ConditionalStatement",
 		`
 [
 	[@[[foo bar] cons]~label[cons foo]]
@@ -64,7 +64,7 @@ func TestComplexConditionalStatementTokenizes(t *testing.T) {
 ]
 `)
 
-	conditionalStatement := form.Value.(ConditionalStatement)
+	conditionalStatement := tk.(ConditionalStatement)
 	if len(conditionalStatement.ConditionalPairs) != 3 {
 		t.Errorf("Expected 3 conditional pairs. Received %d.", len(conditionalStatement.ConditionalPairs))
 	}
@@ -74,18 +74,18 @@ func TestComplexConditionalStatementTokenizes(t *testing.T) {
 		t.Errorf("Expected 1st conditional pair. Received %s.", conditionalPair.GetType())
 	}
 
-	predicateForm := conditionalPair.Predicate.(Form).Value
+	predicateForm := conditionalPair.Predicate
 	if predicateForm.GetType() != "FunctionAtSign" {
 		t.Errorf("Expected 1st conditional pair predicate token to be of type FunctionAtSign. Received %s.", predicateForm.GetType())
 	}
 
-	resultForm := conditionalPair.Result.(Form).Value
+	resultForm := conditionalPair.Result
 	if resultForm.GetType() != "FunctionLabel" {
 		t.Errorf("Expected 1st conditional pair result token to be of type FunctionLabel. Received %s.", resultForm.GetType())
 	}
 }
 
-func InitialCheckAndParseForm(t *testing.T, expectedTopLevelType string, input string) Form {
+func InitialCheckAndParseToken(t *testing.T, expectedTopLevelType string, input string) Token {
 	le := CreateLexarExecutor()
 	ls, err := le.Lex(input)
 	if err != nil {
@@ -97,14 +97,9 @@ func InitialCheckAndParseForm(t *testing.T, expectedTopLevelType string, input s
 		t.Errorf("did not expect an error")
 	}
 
-	if tk.GetType() != "Form" {
-		t.Errorf("Expected outer token to be of type Form. Received %s.", tk.GetType())
+	if tk.GetType() != expectedTopLevelType {
+		t.Errorf("Expected outer token to be of type %s. Received %s.", expectedTopLevelType, tk.GetType())
 	}
 
-	form := tk.(Form)
-	if form.Value.GetType() != expectedTopLevelType {
-		t.Errorf("Expected form's inner value to be a FunctionLabel. Received %s.", form.Value.GetType())
-	}
-
-	return form
+	return tk
 }
