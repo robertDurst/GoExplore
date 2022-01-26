@@ -46,7 +46,7 @@ func (t *Tokenizer) parseForm() {
 
 	switch cur.Type {
 	case lexar.Atom:
-		constant := CreateConstant(cur)
+		constant := CreateConstant(cur.Value)
 		form := CreateForm(constant)
 		t.tks = append(t.tks, form)
 		t.i++
@@ -76,7 +76,7 @@ func (t *Tokenizer) parseForm() {
 
 	case lexar.List:
 		// lists are SExpressions, thus must be a constant
-		constant := CreateConstant(cur)
+		constant := CreateConstant(cur.Value)
 		form := CreateForm(constant)
 		t.tks = append(t.tks, form)
 		t.i++
@@ -104,7 +104,7 @@ func (t Tokenizer) parseForm2(lexs []lexar.Lexicon) Form {
 
 	switch cur.Type {
 	case lexar.Atom:
-		constant := CreateConstant(cur)
+		constant := CreateConstant(cur.Value)
 		return CreateForm(constant)
 
 	case lexar.Identifier:
@@ -124,7 +124,7 @@ func (t Tokenizer) parseForm2(lexs []lexar.Lexicon) Form {
 
 	case lexar.List:
 		// lists are SExpressions, thus must be a constant
-		constant := CreateConstant(cur)
+		constant := CreateConstant(cur.Value)
 		return CreateForm(constant)
 
 	case lexar.ArgList:
