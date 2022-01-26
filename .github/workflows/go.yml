@@ -1,7 +1,5 @@
 on: [push, pull_request]
 name: Test
-env:
-    GO111MODULE: auto
 jobs:
   test:
     strategy:
