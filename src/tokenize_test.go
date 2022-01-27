@@ -44,7 +44,7 @@ label[foo
 func TestFunctionAtSignTokenizes(t *testing.T) {
 	InitialCheckAndParseToken(t, "FunctionContainer", `
 @[[foo bar baz] 
-	label[some cons][[arg1] [arg2]]
+	label[some foz][[arg1] [arg2]]
 ][[arg3] [arg4]]
 `)
 }
@@ -52,7 +52,7 @@ func TestFunctionAtSignTokenizes(t *testing.T) {
 func TestFunctionAtSignInFunctionAtSignTokenizes(t *testing.T) {
 	InitialCheckAndParseToken(t, "FunctionContainer", `
 @[[foo bar baz] 
-	@[[zee car zoom pool] cons][[arg1] [arg2]]
+	@[[zee car zoom pool] foz][[arg1] [arg2]]
 ][[arg3] [arg4]]
 `)
 }
@@ -62,7 +62,7 @@ func TestManyFunctionsInsideFunctions(t *testing.T) {
 label[foo 
 	label[foobar 
 		@[[a b c d e] 
-			label[cons bar][[arg1] [arg2]]
+			label[foz bar][[arg1] [arg2]]
 		][[arg3] [arg4]]
 	][[arg5] [arg6]]
 ][[arg7] [arg8]]
@@ -78,9 +78,9 @@ func TestComplexConditionalStatementTokenizes(t *testing.T) {
 		`
 [
 	[
-		@[[foo bar]cons][[arg1] [arg2]]
+		@[[foo bar]foz][[arg1] [arg2]]
 		~
-		label[cons foo][[arg3] [arg4]]
+		label[foz foo][[arg3] [arg4]]
 	]
 	[bar~F]
 	[T~[[foo~T]]]

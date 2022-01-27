@@ -4,157 +4,233 @@ import (
 	"testing"
 )
 
-func TestCons_TwoAtoms(t *testing.T) {
-	a := CreateSExpression(CreateAtom("a"))
-	b := CreateSExpression(CreateAtom("b"))
-	c := cons(a, b)
+func TestEvalForm_SExpression_Atom(t *testing.T) {
+	input := "FOO"
 
-	if c.Value.Type != List {
-		t.Errorf("Expected a list type. Received %d", c.Value.Type)
-	}
-
-	if len(c.Value.ListValues) != 2 {
-		t.Errorf("Expected cons'd list to have length of 2. Received %d", len(c.Value.ListValues))
-	}
-
-	if c.Value.ListValues[0].Type != Atom {
-		t.Errorf("Expected first element in cons'd list to have a type of atom. Received %d", c.Value.ListValues[0].Type)
-	}
-
-	if c.Value.ListValues[0].Value != "a" {
-		t.Errorf("Expected first element in cons'd list to have a value of 'a'. Received %s", c.Value.ListValues[0].Value)
-	}
-}
-
-func TestCons_OneAtomOneList(t *testing.T) {
-	a := CreateSExpression(CreateAtom("a"))
-	bList := CreateList()
-	bList.ListValues = append(bList.ListValues, CreateAtom("b"))
-	bList.ListValues = append(bList.ListValues, CreateAtom("c"))
-	b := CreateSExpression(bList)
-	c := cons(a, b)
-
-	if c.Value.Type != List {
-		t.Errorf("Expected a list type. Received %d", c.Value.Type)
-	}
-
-	if len(c.Value.ListValues) != 2 {
-		t.Errorf("Expected cons'd list to have length of 2. Received %d", len(c.Value.ListValues))
-	}
-
-	if c.Value.ListValues[0].Type != Atom {
-		t.Errorf("Expected first element in cons'd list to have a type of atom. Received %d", c.Value.ListValues[0].Type)
-	}
-
-	if c.Value.ListValues[0].Value != "a" {
-		t.Errorf("Expected first element in cons'd list to have a value of 'a'. Received %s", c.Value.ListValues[0].Value)
-	}
-}
-
-func TestCons_TwoLists(t *testing.T) {
-	aList := CreateList()
-	aList.ListValues = append(aList.ListValues, CreateAtom("a"))
-	aList.ListValues = append(aList.ListValues, CreateAtom("b"))
-	a := CreateSExpression(aList)
-	bList := CreateList()
-	bList.ListValues = append(bList.ListValues, CreateAtom("c"))
-	bList.ListValues = append(bList.ListValues, CreateAtom("d"))
-	b := CreateSExpression(bList)
-	c := cons(a, b)
-
-	if c.Value.Type != List {
-		t.Errorf("Expected a list type. Received %d", c.Value.Type)
-	}
-
-	if len(c.Value.ListValues) != 2 {
-		t.Errorf("Expected cons'd list to have length of 2. Received %d", len(c.Value.ListValues))
-	}
-
-	if c.Value.ListValues[0].Type != List {
-		t.Errorf("Expected first element in cons'd list to have a type of list. Received %d", c.Value.ListValues[0].Type)
-	}
-
-	if c.Value.ListValues[0].ListValues[0].Value != "a" {
-		t.Errorf("Expected first element in cons'd list's list to have a value of 'a'. Received %s", c.Value.ListValues[0].ListValues[0].Value)
-	}
-}
-
-func TestCar(t *testing.T) {
-	aList := CreateList()
-	aList.ListValues = append(aList.ListValues, CreateAtom("a"))
-	aList.ListValues = append(aList.ListValues, CreateAtom("b"))
-	a := CreateSExpression(aList)
-
-	c, err := car(a)
+	le := CreateLexarExecutor()
+	ls, err := le.Lex(input)
 	if err != nil {
-		t.Errorf("did not expect error")
+		t.Errorf("did not expect a lexar error")
 	}
 
-	if !atom(c) && c.Value.Value != "a" {
-		t.Errorf("Expected car(a b) to be a")
+	tk, err := Tokenize(ls)
+	if err != nil {
+		t.Errorf("did not expect an error")
+	}
+
+	finalTk := eval(tk)
+	if finalTk.GetType() != "SExpression" {
+		t.Errorf("Expected SExpression. Received %s.", finalTk.GetType())
+	}
+
+	sexp := finalTk.(SExpression)
+	if sexp.Value.Value != "FOO" {
+		t.Errorf("Expected FOO. Received %s.", sexp.Value.Value)
 	}
 }
 
-func TestCdr(t *testing.T) {
-	aList := CreateList()
-	aList.ListValues = append(aList.ListValues, CreateAtom("a"))
-	aList.ListValues = append(aList.ListValues, CreateAtom("b"))
-	a := CreateSExpression(aList)
+func TestEvalForm_SExpression_List(t *testing.T) {
+	input := "(FOO BAR)"
 
-	c, err := cdr(a)
+	le := CreateLexarExecutor()
+	ls, err := le.Lex(input)
 	if err != nil {
-		t.Errorf("did not expect error")
+		t.Errorf("did not expect a lexar error")
 	}
 
-	if atom(c) && len(c.Value.ListValues) != 1 && c.Value.ListValues[0].Value != "b" {
-		t.Errorf("Expected cdr(a b) to be (b)")
+	tk, err := Tokenize(ls)
+	if err != nil {
+		t.Errorf("did not expect an error")
+	}
+
+	finalTk := eval(tk)
+	if finalTk.GetType() != "SExpression" {
+		t.Errorf("Expected SExpression. Received %s.", finalTk.GetType())
+	}
+
+	sexp := finalTk.(SExpression)
+	if len(sexp.Value.ListValues) != 2 {
+		t.Errorf("Expected list of length 2. Received length of %d.", len(sexp.Value.ListValues))
 	}
 }
 
-func TestEq(t *testing.T) {
-	a := CreateSExpression(CreateAtom("a"))
-	b := CreateSExpression(CreateAtom("b"))
-	dList := CreateList()
-	dList.ListValues = append(dList.ListValues, CreateAtom("c"))
-	dList.ListValues = append(dList.ListValues, CreateAtom("d"))
-	d := CreateSExpression(dList)
+func TestEvalForm_Variable(t *testing.T) {
+	input := "foo"
 
-	c, err := eq(a, b)
+	le := CreateLexarExecutor()
+	ls, err := le.Lex(input)
 	if err != nil {
-		t.Errorf("did not expect error")
+		t.Errorf("did not expect a lexar error")
 	}
 
-	if c {
-		t.Errorf("expected a != b")
-	}
-
-	c, err = eq(a, a)
+	tk, err := Tokenize(ls)
 	if err != nil {
-		t.Errorf("did not expect error")
+		t.Errorf("did not expect an error")
 	}
 
-	if !c {
-		t.Errorf("expected a == a")
+	finalTk := eval(tk)
+	if finalTk.GetType() != "Variable" {
+		t.Errorf("Expected SExpression. Received %s.", finalTk.GetType())
 	}
 
-	_, err = eq(a, d)
-	if err == nil {
-		t.Errorf("expected an error when calling eq on a list")
+	sexp := finalTk.(Variable)
+	if sexp.Value != "foo" {
+		t.Errorf("Expected foo. Received %s.", sexp.Value)
 	}
 }
 
-func TestAtom(t *testing.T) {
-	a := CreateSExpression(CreateAtom("a"))
-	bList := CreateList()
-	bList.ListValues = append(bList.ListValues, CreateAtom("c"))
-	bList.ListValues = append(bList.ListValues, CreateAtom("d"))
-	b := CreateSExpression(bList)
+func TestEvalForm_Var(t *testing.T) {
+	input := "foo"
 
-	if !atom(a) {
-		t.Errorf("Expected atom(Atom) to be true")
+	le := CreateLexarExecutor()
+	ls, err := le.Lex(input)
+	if err != nil {
+		t.Errorf("did not expect a lexar error")
 	}
 
-	if atom(b) {
-		t.Errorf("Expected atom(List) to be true")
+	tk, err := Tokenize(ls)
+	if err != nil {
+		t.Errorf("did not expect an error")
+	}
+
+	finalTk := eval(tk)
+	if finalTk.GetType() != "Variable" {
+		t.Errorf("Expected SExpression. Received %s.", finalTk.GetType())
+	}
+
+	sexp := finalTk.(Variable)
+	if sexp.Value != "foo" {
+		t.Errorf("Expected foo. Received %s.", sexp.Value)
+	}
+}
+
+func TestEvalForm_FunctionIdentifier_Simple(t *testing.T) {
+	input := "cons[[(FOO BAR)] [BAZ]]"
+
+	le := CreateLexarExecutor()
+	ls, err := le.Lex(input)
+	if err != nil {
+		t.Errorf("did not expect a lexar error")
+	}
+
+	tk, err := Tokenize(ls)
+	if err != nil {
+		t.Errorf("did not expect an error")
+	}
+
+	finalTk := eval(tk)
+	if finalTk.GetType() != "SExpression" {
+		t.Errorf("Expected SExpression. Received %s.", finalTk.GetType())
+	}
+
+	sexp := finalTk.(SExpression)
+	if len(sexp.Value.ListValues) != 2 {
+		t.Errorf("Expected list of length 2. Received length of %d.", len(sexp.Value.ListValues))
+	}
+
+	if len(sexp.Value.ListValues[0].ListValues) != 2 {
+		t.Errorf("Expected first element to be a list of length 2. Received length of %d.", len(sexp.Value.ListValues[0].ListValues))
+	}
+
+	if sexp.Value.ListValues[0].ListValues[0].Value != "FOO" {
+		t.Errorf("Expected FOO. Received %s.", sexp.Value.ListValues[0].ListValues[0].Value)
+	}
+}
+
+func TestEvalForm_FunctionIdentifier_Simple2(t *testing.T) {
+	input := `
+cons[
+	[
+		cdr[[(FOO BAR)]]
+	] 
+	[BAZ]
+]
+`
+
+	le := CreateLexarExecutor()
+	ls, err := le.Lex(input)
+	if err != nil {
+		t.Errorf("did not expect a lexar error")
+	}
+
+	tk, err := Tokenize(ls)
+	if err != nil {
+		t.Errorf("did not expect an error, %s", err.Error())
+	}
+
+	finalTk := eval(tk)
+	if finalTk.GetType() != "SExpression" {
+		t.Errorf("Expected SExpression. Received %s.", finalTk.GetType())
+	}
+
+	sexp := finalTk.(SExpression)
+	if len(sexp.Value.ListValues) != 2 {
+		t.Errorf("Expected list of length 2. Received length of %d.", len(sexp.Value.ListValues))
+	}
+
+	if len(sexp.Value.ListValues[0].ListValues) != 1 {
+		t.Errorf("Expected first element to be a list of length 1. Received length of %d.", len(sexp.Value.ListValues[0].ListValues))
+	}
+
+	if sexp.Value.ListValues[0].ListValues[0].Value != "BAR" {
+		t.Errorf("Expected BAR. Received %s.", sexp.Value.ListValues[0].ListValues[0].Value)
+	}
+}
+
+func TestEvalForm_FunctionIdentifier_Simple3(t *testing.T) {
+	input := `
+cons[
+		[
+			cdr[
+					[
+						cons[
+							[(FOO BAR)]
+							[(BAZ FAZ)]
+						]
+					]
+			]
+		] 
+		[
+			car[
+				[(GAZ BAZ)]
+			]
+		]
+]
+`
+
+	le := CreateLexarExecutor()
+	ls, err := le.Lex(input)
+	if err != nil {
+		t.Errorf("did not expect a lexar error, %s", err.Error())
+	}
+
+	tk, err := Tokenize(ls)
+	if err != nil {
+		t.Errorf("did not expect an error, %s", err.Error())
+	}
+
+	finalTk := eval(tk)
+	if finalTk.GetType() != "SExpression" {
+		t.Errorf("Expected SExpression. Received %s.", finalTk.GetType())
+	}
+
+	sexp := finalTk.(SExpression)
+	if len(sexp.Value.ListValues) != 2 {
+		t.Errorf("Expected list of length 2. Received length of %d.", len(sexp.Value.ListValues))
+	}
+
+	if len(sexp.Value.ListValues[0].ListValues) != 1 {
+		t.Errorf("Expected first element to be a list of length 1. Received length of %d.", len(sexp.Value.ListValues[0].ListValues))
+	}
+
+	// make sure we have ((BAZ FAZ) GAZ)
+	if sexp.Value.ListValues[0].ListValues[0].ListValues[0].Value != "BAZ" {
+		t.Errorf("Expected BAZ. Received %s.", sexp.Value.ListValues[0].ListValues[0].ListValues[0].Value)
+	}
+	if sexp.Value.ListValues[0].ListValues[0].ListValues[1].Value != "FAZ" {
+		t.Errorf("Expected FAZ. Received %s.", sexp.Value.ListValues[0].ListValues[0].ListValues[1].Value)
+	}
+	if sexp.Value.ListValues[1].Value != "GAZ" {
+		t.Errorf("Expected GAZ. Received %s.", sexp.Value.ListValues[1].Value)
 	}
 }

@@ -33,6 +33,20 @@ func Tokenize(lexs []Lexicon) (Token, error) {
 		}
 		return CreateFunctionContainer(fl, args), nil
 	default:
+		if lexs[0].Type == Identifier &&
+			(lexs[0].Value == "cons" ||
+				lexs[0].Value == "car" ||
+				lexs[0].Value == "cdr" ||
+				lexs[0].Value == "eq" ||
+				lexs[0].Value == "atom") {
+			fi := CreateFunctionIdentifier(CreateVariable(lexs[0].Value))
+			args, err := parseArgs(lexs[1])
+			if err != nil {
+				return nil, err
+			}
+
+			return CreateFunctionContainer(fi, args), nil
+		}
 		return parseForm(lexs[0])
 
 	}

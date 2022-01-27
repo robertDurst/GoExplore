@@ -1,79 +1,13 @@
 package GoExplore
 
-import "errors"
-
-// elementary SExpression functions
-func cons(a SExpression, b SExpression) SExpression {
-	encompassingList := CreateList()
-	encompassingList.ListValues = append(encompassingList.ListValues, a.Value)
-	encompassingList.ListValues = append(encompassingList.ListValues, b.Value)
-	return CreateSExpression(encompassingList)
-}
-
-func car(a SExpression) (SExpression, error) {
-	if a.Value.Type != List || len(a.Value.ListValues) == 0 {
-		return CreateSExpression(CreateAtom("")), errors.New("expected a list with at least one value")
-	}
-
-	return CreateSExpression(a.Value.ListValues[0]), nil
-}
-
-func cdr(a SExpression) (SExpression, error) {
-	if a.Value.Type != List || len(a.Value.ListValues) == 0 {
-		return CreateSExpression(CreateAtom("")), errors.New("expected a list with at least one value")
-	}
-
-	list := CreateList()
-	list.ListValues = append(list.ListValues, a.Value.ListValues[1:]...)
-
-	return CreateSExpression(list), nil
-}
-
-func eq(a SExpression, b SExpression) (bool, error) {
-	if !atom(a) || !atom(b) {
-		return false, errors.New("expected both arguments to be of type Atom")
-	}
-
-	return a.Value.Value == b.Value.Value, nil
-}
-
-func atom(a SExpression) bool {
-	return a.Value.Type == Atom
-}
-
-// auxillary functions for evalquote
-// func equal() {
-// }
-
-// func subst() {
-// }
-
-// func null() {
-// }
-
-// // func append() {
-// // }
-
-// func member() {
-// }
-
-// func pairlis() {
-// }
-
-// func assoc() {
-// }
-
-// func sublis() {
-// }
-
 func eval(tk Token) Token {
 	switch tk.GetType() {
 	case "SExpression":
 		return evalSExpression(tk.(SExpression))
 	case "Variable":
 		return evalVariable(tk.(Variable))
-	case "Function":
-		return evalFunction(tk.(Function))
+	case "FunctionContainer":
+		return evalFunctionContainer(tk.(FunctionContainer))
 	case "ConditionalStatement":
 		return evalConditionalStatement(tk.(ConditionalStatement))
 	default:
@@ -89,12 +23,58 @@ func evalVariable(v Variable) Token {
 	return v
 }
 
-func evalFunction(fn Function) Token {
-	switch fn.GetType() {
+func evalFunctionContainer(fc FunctionContainer) Token {
+	switch fc.Fn.GetType() {
+	case "FunctionIdentifier":
+		return evalFunctionIdentifier(fc)
 	case "FunctionAtSign":
-	case "Label":
+		return nil
+	case "FunctionLabel":
+		return nil
 	default:
 		return nil
+	}
+}
+
+func evalFunctionIdentifier(fc FunctionContainer) Token {
+	args := make([]SExpression, 0)
+	for _, arg := range fc.Args {
+		evaldArg := eval(arg)
+		if evaldArg.GetType() != "SExpression" {
+			panic("expected only SExpression args in FunctionIdentifier")
+		}
+		args = append(args, evaldArg.(SExpression))
+	}
+
+	name := fc.Fn.(FunctionIdentifier).Name
+	switch name.Value {
+	case "cons":
+		if len(args) != 2 {
+			panic("expected 2 arg")
+		}
+		return cons(args[0], args[1])
+	case "car":
+		if len(args) != 1 {
+			panic("expected 1 arg")
+		}
+		val, _ := car(args[0])
+		return val
+	case "cdr":
+		if len(args) != 1 {
+			panic("expected 1 arg")
+		}
+		val, _ := cdr(args[0])
+		return val
+	case "eq":
+		if len(args) != 2 {
+			panic("expected 2 arg")
+		}
+		return cons(args[0], args[1])
+	case "atom":
+		if len(args) != 1 {
+			panic("expected 1 arg")
+		}
+		return boolToSExpression(atom(args[0]))
 	}
 	return nil
 }
@@ -109,4 +89,11 @@ func evalFunctionLabel(fn FunctionLabel) Token {
 
 func evalConditionalStatement(cs ConditionalStatement) Token {
 	return nil
+}
+
+func boolToSExpression(condition bool) SExpression {
+	if condition {
+		return CreateSExpression(CreateAtom("T"))
+	}
+	return CreateSExpression(CreateAtom("F"))
 }
