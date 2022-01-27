@@ -19,7 +19,7 @@ func TestEvalForm_SExpression_Atom(t *testing.T) {
 	}
 
 	e := CreateEvaluator()
-	finalTk := e.eval(tk)
+	finalTk := e.Eval(tk)
 	if finalTk.GetType() != "SExpression" {
 		t.Errorf("Expected SExpression. Received %s.", finalTk.GetType())
 	}
@@ -45,7 +45,7 @@ func TestEvalForm_SExpression_List(t *testing.T) {
 	}
 
 	e := CreateEvaluator()
-	finalTk := e.eval(tk)
+	finalTk := e.Eval(tk)
 	if finalTk.GetType() != "SExpression" {
 		t.Errorf("Expected SExpression. Received %s.", finalTk.GetType())
 	}
@@ -71,7 +71,7 @@ func TestEvalForm_FunctionIdentifier_Simple(t *testing.T) {
 	}
 
 	e := CreateEvaluator()
-	finalTk := e.eval(tk)
+	finalTk := e.Eval(tk)
 	if finalTk.GetType() != "SExpression" {
 		t.Errorf("Expected SExpression. Received %s.", finalTk.GetType())
 	}
@@ -112,7 +112,7 @@ cons[
 	}
 
 	e := CreateEvaluator()
-	finalTk := e.eval(tk)
+	finalTk := e.Eval(tk)
 	if finalTk.GetType() != "SExpression" {
 		t.Errorf("Expected SExpression. Received %s.", finalTk.GetType())
 	}
@@ -164,7 +164,7 @@ cons[
 	}
 
 	e := CreateEvaluator()
-	finalTk := e.eval(tk)
+	finalTk := e.Eval(tk)
 	if finalTk.GetType() != "SExpression" {
 		t.Errorf("Expected SExpression. Received %s.", finalTk.GetType())
 	}
@@ -205,7 +205,7 @@ func TestEvalForm_FunctionLabel_Simple(t *testing.T) {
 	}
 
 	e := CreateEvaluator()
-	finalTk := e.eval(tk)
+	finalTk := e.Eval(tk)
 	if finalTk.GetType() != "SExpression" {
 		t.Errorf("Expected SExpression. Received %s.", finalTk.GetType())
 	}
@@ -231,7 +231,7 @@ func TestEvalForm_FunctionLabel_ThenUseSimple(t *testing.T) {
 	}
 
 	e := CreateEvaluator()
-	finalTk := e.eval(tk)
+	finalTk := e.Eval(tk)
 	if finalTk.GetType() != "SExpression" {
 		t.Errorf("Expected SExpression. Received %s.", finalTk.GetType())
 	}
@@ -254,7 +254,7 @@ func TestEvalForm_FunctionLabel_ThenUseSimple(t *testing.T) {
 		t.Errorf("did not expect an error")
 	}
 
-	e.eval(tk)
+	e.Eval(tk)
 }
 
 func TestEvalForm_ConditionalStatement_Simple(t *testing.T) {
@@ -272,7 +272,7 @@ func TestEvalForm_ConditionalStatement_Simple(t *testing.T) {
 	}
 
 	e := CreateEvaluator()
-	finalTk := e.eval(tk)
+	finalTk := e.Eval(tk)
 	if finalTk.GetType() != "SExpression" {
 		t.Errorf("Expected SExpression. Received %s.", finalTk.GetType())
 	}
@@ -298,7 +298,7 @@ func TestEvalForm_ConditionalStatement_Simple2(t *testing.T) {
 	}
 
 	e := CreateEvaluator()
-	finalTk := e.eval(tk)
+	finalTk := e.Eval(tk)
 	if finalTk.GetType() != "SExpression" {
 		t.Errorf("Expected SExpression. Received %s.", finalTk.GetType())
 	}
@@ -324,7 +324,7 @@ func TestEvalForm_ConditionalStatement_Simple3(t *testing.T) {
 	}
 
 	e := CreateEvaluator()
-	finalTk := e.eval(tk)
+	finalTk := e.Eval(tk)
 	if finalTk.GetType() != "SExpression" {
 		t.Errorf("Expected SExpression. Received %s.", finalTk.GetType())
 	}

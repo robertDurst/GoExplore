@@ -1,5 +1,7 @@
 package GoExplore
 
+import "fmt"
+
 type Evaluator struct {
 	functionMap map[string]func([]Token) (Token, error)
 	labelMap    map[string]Function
@@ -18,7 +20,7 @@ func CreateEvaluator() Evaluator {
 	return Evaluator{functionMap: fmap, labelMap: lmap}
 }
 
-func (e Evaluator) eval(tk Token) Token {
+func (e Evaluator) Eval(tk Token) Token {
 	switch tk.GetType() {
 	case "SExpression":
 		return e.evalSExpression(tk.(SExpression))
@@ -40,7 +42,7 @@ func (e Evaluator) evalSExpression(sexp SExpression) Token {
 func (e Evaluator) evalFunction(fn Function) Token {
 	args := make([]Token, 0)
 	for _, arg := range fn.Args {
-		evaldArg := e.eval(arg)
+		evaldArg := e.Eval(arg)
 		if evaldArg.GetType() == "SExpression" || evaldArg.GetType() == "Ident" {
 			args = append(args, evaldArg)
 		} else {
@@ -54,7 +56,8 @@ func (e Evaluator) evalFunction(fn Function) Token {
 		return val
 	}
 
-	if _, ok := e.labelMap[name]; ok {
+	if f, ok := e.labelMap[name]; ok {
+		fmt.Printf("We want to execute %s() which has %d args and we've supplied %d args", f.Name, len(f.Args), len(fn.Args))
 		return nil
 	}
 
@@ -85,10 +88,10 @@ func (e Evaluator) evalFunctionLabel(fl FunctionLabel) Token {
 
 func (e Evaluator) evalConditionalStatement(cs ConditionalStatement) Token {
 	for _, cp := range cs.ConditionalPairs {
-		isTruthy := e.eval(cp.Predicate)
+		isTruthy := e.Eval(cp.Predicate)
 
 		if isTruthy.GetType() == "SExpression" && isTruthy.(SExpression).Value.Value == "T" {
-			return e.eval(cp.Result)
+			return e.Eval(cp.Result)
 		}
 	}
 
