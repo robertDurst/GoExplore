@@ -18,7 +18,8 @@ func TestEvalForm_SExpression_Atom(t *testing.T) {
 		t.Errorf("did not expect an error")
 	}
 
-	finalTk := eval(tk)
+	e := CreateEvaluator()
+	finalTk := e.eval(tk)
 	if finalTk.GetType() != "SExpression" {
 		t.Errorf("Expected SExpression. Received %s.", finalTk.GetType())
 	}
@@ -43,7 +44,8 @@ func TestEvalForm_SExpression_List(t *testing.T) {
 		t.Errorf("did not expect an error")
 	}
 
-	finalTk := eval(tk)
+	e := CreateEvaluator()
+	finalTk := e.eval(tk)
 	if finalTk.GetType() != "SExpression" {
 		t.Errorf("Expected SExpression. Received %s.", finalTk.GetType())
 	}
@@ -68,7 +70,8 @@ func TestEvalForm_Variable(t *testing.T) {
 		t.Errorf("did not expect an error")
 	}
 
-	finalTk := eval(tk)
+	e := CreateEvaluator()
+	finalTk := e.eval(tk)
 	if finalTk.GetType() != "Variable" {
 		t.Errorf("Expected SExpression. Received %s.", finalTk.GetType())
 	}
@@ -93,7 +96,8 @@ func TestEvalForm_Var(t *testing.T) {
 		t.Errorf("did not expect an error")
 	}
 
-	finalTk := eval(tk)
+	e := CreateEvaluator()
+	finalTk := e.eval(tk)
 	if finalTk.GetType() != "Variable" {
 		t.Errorf("Expected SExpression. Received %s.", finalTk.GetType())
 	}
@@ -118,7 +122,8 @@ func TestEvalForm_FunctionIdentifier_Simple(t *testing.T) {
 		t.Errorf("did not expect an error")
 	}
 
-	finalTk := eval(tk)
+	e := CreateEvaluator()
+	finalTk := e.eval(tk)
 	if finalTk.GetType() != "SExpression" {
 		t.Errorf("Expected SExpression. Received %s.", finalTk.GetType())
 	}
@@ -158,7 +163,8 @@ cons[
 		t.Errorf("did not expect an error, %s", err.Error())
 	}
 
-	finalTk := eval(tk)
+	e := CreateEvaluator()
+	finalTk := e.eval(tk)
 	if finalTk.GetType() != "SExpression" {
 		t.Errorf("Expected SExpression. Received %s.", finalTk.GetType())
 	}
@@ -209,7 +215,8 @@ cons[
 		t.Errorf("did not expect an error, %s", err.Error())
 	}
 
-	finalTk := eval(tk)
+	e := CreateEvaluator()
+	finalTk := e.eval(tk)
 	if finalTk.GetType() != "SExpression" {
 		t.Errorf("Expected SExpression. Received %s.", finalTk.GetType())
 	}

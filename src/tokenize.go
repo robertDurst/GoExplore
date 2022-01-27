@@ -9,29 +9,8 @@ func Tokenize(lexs []Lexicon) (Token, error) {
 	switch {
 	case len(lexs) == 0:
 		return nil, errors.New("received no lexicons to tokenize")
-	case lexs[0].Type == AtSign:
-		fas, err := parseFunctionAtSign(lexs[1])
-		if err != nil {
-			return nil, err
-		}
-
-		args, err := parseArgs(lexs[2])
-		if err != nil {
-			return nil, err
-		}
-
-		return CreateFunctionContainer(fas, args), nil
 	case lexs[0].Type == Identifier && lexs[0].Value == "label":
-		fl, err := parseFunctionLabel(lexs[1])
-		if err != nil {
-			return nil, err
-		}
-
-		args, err := parseArgs(lexs[2])
-		if err != nil {
-			return nil, err
-		}
-		return CreateFunctionContainer(fl, args), nil
+		return parseFunctionLabel(lexs[1])
 	default:
 		if lexs[0].Type == Identifier &&
 			(lexs[0].Value == "cons" ||
@@ -39,13 +18,13 @@ func Tokenize(lexs []Lexicon) (Token, error) {
 				lexs[0].Value == "cdr" ||
 				lexs[0].Value == "eq" ||
 				lexs[0].Value == "atom") {
-			fi := CreateFunctionIdentifier(CreateVariable(lexs[0].Value))
+			name := lexs[0].Value
 			args, err := parseArgs(lexs[1])
 			if err != nil {
 				return nil, err
 			}
 
-			return CreateFunctionContainer(fi, args), nil
+			return CreateFunction(name, args), nil
 		}
 		return parseForm(lexs[0])
 
@@ -82,31 +61,6 @@ func parseFunctionLabel(cur Lexicon) (Token, error) {
 
 	functionLabel := CreateFunctionLabel(identifier, form)
 	return functionLabel, nil
-}
-
-func parseFunctionAtSign(cur Lexicon) (Token, error) {
-	if err := AssertType(cur, ArgList); err != nil {
-		return nil, err
-	}
-
-	if err := AssertType(cur.ListValues[0], ArgList); err != nil {
-		return nil, err
-	}
-
-	varList := make([]Token, 0)
-	for _, varArg := range cur.ListValues[0].ListValues {
-		AssertType(varArg, Identifier)
-		variable := CreateVariable(varArg.Value)
-		varList = append(varList, variable)
-	}
-
-	form, err := Tokenize(cur.ListValues[1:])
-	if err != nil {
-		return nil, err
-	}
-
-	functionAtSign := CreateFunctionAtSign(varList, form)
-	return functionAtSign, nil
 }
 
 func parseConditionalStatement(cur Lexicon) (Token, error) {

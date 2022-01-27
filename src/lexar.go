@@ -86,11 +86,10 @@ func (le *LexarExecutor) Lex(line string) ([]Lexicon, error) {
 			if err != nil {
 				return nil, err
 			}
+
 		// Punctuation
 		case '~':
 			le.addNonListLexiconToLexs(CreateSquiggle())
-		case '@':
-			le.addNonListLexiconToLexs(CreateAtSign())
 
 		// whitespace
 		case ' ':

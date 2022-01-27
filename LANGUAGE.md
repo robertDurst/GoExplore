@@ -13,14 +13,10 @@
 
 ```
 <form> ::= <S-expression> | 
-           <variable> |
-           <function>[[<form>]...[<form>]] |
+           <identifier> |
+           <identifier>[[<form>]...[<form>]] |
+           label[<identifier><function>]
            [[<form>~<form>]...[<form>~<form>]]
-<variable> ::= <identifier>
-<function> ::= <identifier> | 
-               @[<var list> <form>] |
-               label[<identifier><function>]
-<var list> ::= [<variable> ... <variable>]
 <argument> ::= <form>
 <identifier> ::= <letter><id part>
 <id part> ::= <empty> | <letter><id part> | <number><id part>

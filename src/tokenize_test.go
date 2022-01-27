@@ -30,42 +30,14 @@ func TestSimpleVariableTokenizes(t *testing.T) {
 }
 
 func TestFunctionLabelTokenizes(t *testing.T) {
-	InitialCheckAndParseToken(t, "FunctionContainer", "label[foo nons][[arg1] [arg2]]")
+	InitialCheckAndParseToken(t, "FunctionLabel", "label[foo nons]")
 }
 
 func TestFunctionLabelWithInnerFunctionLabelTokenizes(t *testing.T) {
-	InitialCheckAndParseToken(t, "FunctionContainer", `
+	InitialCheckAndParseToken(t, "FunctionLabel", `
 label[foo 
-	label[foobar sandwich][[arg1] [arg2]]
-][[arg1] [arg2]]
-`)
-}
-
-func TestFunctionAtSignTokenizes(t *testing.T) {
-	InitialCheckAndParseToken(t, "FunctionContainer", `
-@[[foo bar baz] 
-	label[some foz][[arg1] [arg2]]
-][[arg3] [arg4]]
-`)
-}
-
-func TestFunctionAtSignInFunctionAtSignTokenizes(t *testing.T) {
-	InitialCheckAndParseToken(t, "FunctionContainer", `
-@[[foo bar baz] 
-	@[[zee car zoom pool] foz][[arg1] [arg2]]
-][[arg3] [arg4]]
-`)
-}
-
-func TestManyFunctionsInsideFunctions(t *testing.T) {
-	InitialCheckAndParseToken(t, "FunctionContainer", `
-label[foo 
-	label[foobar 
-		@[[a b c d e] 
-			label[foz bar][[arg1] [arg2]]
-		][[arg3] [arg4]]
-	][[arg5] [arg6]]
-][[arg7] [arg8]]
+	label[foobar sandwich]
+]
 `)
 }
 
@@ -78,9 +50,9 @@ func TestComplexConditionalStatementTokenizes(t *testing.T) {
 		`
 [
 	[
-		@[[foo bar]foz][[arg1] [arg2]]
+		cons[[arg1] [arg2]]
 		~
-		label[foz foo][[arg3] [arg4]]
+		label[foz foo]
 	]
 	[bar~F]
 	[T~[[foo~T]]]
@@ -98,23 +70,23 @@ func TestComplexConditionalStatementTokenizes(t *testing.T) {
 	}
 
 	predicateForm := conditionalPair.Predicate
-	if predicateForm.GetType() != "FunctionContainer" {
-		t.Errorf("Expected 1st conditional pair predicate token to be of type FunctionContainer. Received %s.", predicateForm.GetType())
+	if predicateForm.GetType() != "Function" {
+		t.Errorf("Expected 1st conditional pair predicate token to be of type Function. Received %s.", predicateForm.GetType())
 	}
-	predicateFormFunctionContainer := predicateForm.(FunctionContainer)
-	predicateFormFunctionAtSign := predicateFormFunctionContainer.Fn.(FunctionAtSign)
-	if predicateFormFunctionAtSign.Vars[0].(Variable).Value != "foo" {
-		t.Errorf("Expected first variable in first conditional pair predicate to be foo. Received %s.", predicateFormFunctionAtSign.Vars[0].(Variable).Value)
+	predicateFormFunction := predicateForm.(Function)
+	predicateFormFunctionName := predicateFormFunction.Name
+	if predicateFormFunctionName != "cons" {
+		t.Errorf("Expected first variable in first conditional pair predicate to be cons. Received %s.", predicateFormFunctionName)
 	}
 
-	predicateFormFunctionArgs := predicateFormFunctionContainer.Args
+	predicateFormFunctionArgs := predicateFormFunction.Args
 	if len(predicateFormFunctionArgs) != 2 {
 		t.Errorf("Expected predicate in first conditional pair to have 2 args. Received %d.", len(predicateFormFunctionArgs))
 	}
 
 	resultForm := conditionalPair.Result
-	if resultForm.GetType() != "FunctionContainer" {
-		t.Errorf("Expected 1st conditional pair result token to be of type FunctionContainer. Received %s.", resultForm.GetType())
+	if resultForm.GetType() != "FunctionLabel" {
+		t.Errorf("Expected 1st conditional pair result token to be of type FunctionLabel. Received %s.", resultForm.GetType())
 	}
 }
 

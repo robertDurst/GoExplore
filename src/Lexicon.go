@@ -2,7 +2,6 @@ package GoExplore
 
 const (
 	ArgList = iota
-	AtSign
 	Atom
 	Identifier
 	List
@@ -33,12 +32,6 @@ func CreateAtom(value string) Lexicon {
 	lex.IsSExpression = true
 	lex.Type = Atom
 	lex.Value = value
-	return lex
-}
-
-func CreateAtSign() Lexicon {
-	lex := DefaultToken()
-	lex.Type = AtSign
 	return lex
 }
 

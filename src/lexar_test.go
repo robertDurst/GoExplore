@@ -115,7 +115,7 @@ func TestErrorWhenArgListIsElementOfSExpressionList(t *testing.T) {
 }
 
 func TestErrorWhenMissingArgListEndParen(t *testing.T) {
-	AssertError(t, "label[foo;label[foobar;@[[a;b;c;d;e];label[cons;bar]]]")
+	AssertError(t, "label[forlabel[foobar [[a b c d e] label[cons bar]]]")
 }
 
 func TestErrorWhenMissingSExpListEndParen(t *testing.T) {
