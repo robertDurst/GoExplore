@@ -10,9 +10,28 @@ func Tokenize(lexs []Lexicon) (Token, error) {
 	case len(lexs) == 0:
 		return nil, errors.New("received no lexicons to tokenize")
 	case lexs[0].Type == AtSign:
-		return parseFunctionAtSign(lexs[1])
+		fas, err := parseFunctionAtSign(lexs[1])
+		if err != nil {
+			return nil, err
+		}
+
+		args, err := parseArgs(lexs[2])
+		if err != nil {
+			return nil, err
+		}
+
+		return CreateFunctionContainer(fas, args), nil
 	case lexs[0].Type == Identifier && lexs[0].Value == "label":
-		return parseFunctionLabel(lexs[1])
+		fl, err := parseFunctionLabel(lexs[1])
+		if err != nil {
+			return nil, err
+		}
+
+		args, err := parseArgs(lexs[2])
+		if err != nil {
+			return nil, err
+		}
+		return CreateFunctionContainer(fl, args), nil
 	default:
 		return parseForm(lexs[0])
 
@@ -84,8 +103,9 @@ func parseConditionalStatement(cur Lexicon) (Token, error) {
 	conditionalStatement := CreateConditionalStatement()
 
 	for _, curArgList := range cur.ListValues {
-		AssertType(curArgList, ArgList)
-
+		if err := AssertType(curArgList, ArgList); err != nil {
+			return nil, err
+		}
 		squiggleIndex := 0
 		for ; squiggleIndex < len(curArgList.ListValues); squiggleIndex++ {
 			if curArgList.ListValues[squiggleIndex].Type == Squiggle {
@@ -113,6 +133,29 @@ func parseConditionalStatement(cur Lexicon) (Token, error) {
 	}
 
 	return conditionalStatement, nil
+}
+
+func parseArgs(cur Lexicon) ([]Token, error) {
+	if err := AssertType(cur, ArgList); err != nil {
+		return nil, err
+	}
+
+	args := make([]Token, 0)
+
+	for _, curArgList := range cur.ListValues {
+		if err := AssertType(curArgList, ArgList); err != nil {
+			return nil, err
+		}
+
+		arg, err := Tokenize(curArgList.ListValues)
+		if err != nil {
+			return nil, err
+		}
+
+		args = append(args, arg)
+	}
+
+	return args, nil
 }
 
 func AssertType(actual Lexicon, expected int) error {

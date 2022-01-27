@@ -14,7 +14,7 @@
 ```
 <form> ::= <S-expression> | 
            <variable> |
-           <function>[<argument>;...;<argument>] |
+           <function>[[<form>]...[<form>]] |
            [[<form>~<form>]...[<form>~<form>]]
 <variable> ::= <identifier>
 <function> ::= <identifier> | 

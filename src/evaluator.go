@@ -65,3 +65,48 @@ func atom(a SExpression) bool {
 
 // func sublis() {
 // }
+
+func eval(tk Token) Token {
+	switch tk.GetType() {
+	case "SExpression":
+		return evalSExpression(tk.(SExpression))
+	case "Variable":
+		return evalVariable(tk.(Variable))
+	case "Function":
+		return evalFunction(tk.(Function))
+	case "ConditionalStatement":
+		return evalConditionalStatement(tk.(ConditionalStatement))
+	default:
+		return nil
+	}
+}
+
+func evalSExpression(sexp SExpression) Token {
+	return sexp
+}
+
+func evalVariable(v Variable) Token {
+	return v
+}
+
+func evalFunction(fn Function) Token {
+	switch fn.GetType() {
+	case "FunctionAtSign":
+	case "Label":
+	default:
+		return nil
+	}
+	return nil
+}
+
+func evalFunctionAtSign(fn FunctionAtSign) Token {
+	return nil
+}
+
+func evalFunctionLabel(fn FunctionLabel) Token {
+	return nil
+}
+
+func evalConditionalStatement(cs ConditionalStatement) Token {
+	return nil
+}
