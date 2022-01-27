@@ -12,12 +12,7 @@ func Tokenize(lexs []Lexicon) (Token, error) {
 	case lexs[0].Type == Identifier && lexs[0].Value == "label":
 		return parseFunctionLabel(lexs[1])
 	default:
-		if lexs[0].Type == Identifier &&
-			(lexs[0].Value == "cons" ||
-				lexs[0].Value == "car" ||
-				lexs[0].Value == "cdr" ||
-				lexs[0].Value == "eq" ||
-				lexs[0].Value == "atom") {
+		if lexs[0].Type == Identifier && len(lexs) > 1 {
 			name := lexs[0].Value
 			args, err := parseArgs(lexs[1])
 			if err != nil {
@@ -37,7 +32,7 @@ func parseForm(cur Lexicon) (Token, error) {
 		return CreateSExpression(cur), nil
 
 	case Identifier:
-		return CreateVariable(cur.Value), nil
+		return CreateIdent(cur.Value), nil
 
 	case ArgList:
 		return parseConditionalStatement(cur)
@@ -52,7 +47,7 @@ func parseFunctionLabel(cur Lexicon) (Token, error) {
 		return nil, err
 	}
 
-	identifier := CreateVariable(cur.ListValues[0].Value)
+	identifier := CreateIdent(cur.ListValues[0].Value)
 
 	form, err := Tokenize(cur.ListValues[1:])
 	if err != nil {

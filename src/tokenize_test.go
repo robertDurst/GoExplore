@@ -24,11 +24,6 @@ func TestSimpleConstantTokenizes(t *testing.T) {
 func TestListWithinListTokenizesToConstant(t *testing.T) {
 	InitialCheckAndParseToken(t, "SExpression", "(HELLO (WORLD5 ((BAR))) FOO)")
 }
-
-func TestSimpleVariableTokenizes(t *testing.T) {
-	InitialCheckAndParseToken(t, "Variable", "foo")
-}
-
 func TestFunctionLabelTokenizes(t *testing.T) {
 	InitialCheckAndParseToken(t, "FunctionLabel", "label[foo nons]")
 }

@@ -56,58 +56,6 @@ func TestEvalForm_SExpression_List(t *testing.T) {
 	}
 }
 
-func TestEvalForm_Variable(t *testing.T) {
-	input := "foo"
-
-	le := CreateLexarExecutor()
-	ls, err := le.Lex(input)
-	if err != nil {
-		t.Errorf("did not expect a lexar error")
-	}
-
-	tk, err := Tokenize(ls)
-	if err != nil {
-		t.Errorf("did not expect an error")
-	}
-
-	e := CreateEvaluator()
-	finalTk := e.eval(tk)
-	if finalTk.GetType() != "Variable" {
-		t.Errorf("Expected SExpression. Received %s.", finalTk.GetType())
-	}
-
-	sexp := finalTk.(Variable)
-	if sexp.Value != "foo" {
-		t.Errorf("Expected foo. Received %s.", sexp.Value)
-	}
-}
-
-func TestEvalForm_Var(t *testing.T) {
-	input := "foo"
-
-	le := CreateLexarExecutor()
-	ls, err := le.Lex(input)
-	if err != nil {
-		t.Errorf("did not expect a lexar error")
-	}
-
-	tk, err := Tokenize(ls)
-	if err != nil {
-		t.Errorf("did not expect an error")
-	}
-
-	e := CreateEvaluator()
-	finalTk := e.eval(tk)
-	if finalTk.GetType() != "Variable" {
-		t.Errorf("Expected SExpression. Received %s.", finalTk.GetType())
-	}
-
-	sexp := finalTk.(Variable)
-	if sexp.Value != "foo" {
-		t.Errorf("Expected foo. Received %s.", sexp.Value)
-	}
-}
-
 func TestEvalForm_FunctionIdentifier_Simple(t *testing.T) {
 	input := "cons[[(FOO BAR)] [BAZ]]"
 
@@ -239,5 +187,150 @@ cons[
 	}
 	if sexp.Value.ListValues[1].Value != "GAZ" {
 		t.Errorf("Expected GAZ. Received %s.", sexp.Value.ListValues[1].Value)
+	}
+}
+
+func TestEvalForm_FunctionLabel_Simple(t *testing.T) {
+	input := "label[foo cons[[x]]]"
+
+	le := CreateLexarExecutor()
+	ls, err := le.Lex(input)
+	if err != nil {
+		t.Errorf("did not expect a lexar error")
+	}
+
+	tk, err := Tokenize(ls)
+	if err != nil {
+		t.Errorf("did not expect an error")
+	}
+
+	e := CreateEvaluator()
+	finalTk := e.eval(tk)
+	if finalTk.GetType() != "SExpression" {
+		t.Errorf("Expected SExpression. Received %s.", finalTk.GetType())
+	}
+
+	sexp := finalTk.(SExpression)
+	if sexp.Value.Value != "T" {
+		t.Errorf("Expected T. Received %s.", sexp.Value.Value)
+	}
+}
+
+func TestEvalForm_FunctionLabel_ThenUseSimple(t *testing.T) {
+	input := "label[foo cons[[x]]]"
+
+	le := CreateLexarExecutor()
+	ls, err := le.Lex(input)
+	if err != nil {
+		t.Errorf("did not expect a lexar error")
+	}
+
+	tk, err := Tokenize(ls)
+	if err != nil {
+		t.Errorf("did not expect an error")
+	}
+
+	e := CreateEvaluator()
+	finalTk := e.eval(tk)
+	if finalTk.GetType() != "SExpression" {
+		t.Errorf("Expected SExpression. Received %s.", finalTk.GetType())
+	}
+
+	sexp := finalTk.(SExpression)
+	if sexp.Value.Value != "T" {
+		t.Errorf("Expected T. Received %s.", sexp.Value.Value)
+	}
+
+	input = "foo[[BAR]]"
+
+	le = CreateLexarExecutor()
+	ls, err = le.Lex(input)
+	if err != nil {
+		t.Errorf("did not expect a lexar error")
+	}
+
+	tk, err = Tokenize(ls)
+	if err != nil {
+		t.Errorf("did not expect an error")
+	}
+
+	e.eval(tk)
+}
+
+func TestEvalForm_ConditionalStatement_Simple(t *testing.T) {
+	input := "[[T~FOO]]"
+
+	le := CreateLexarExecutor()
+	ls, err := le.Lex(input)
+	if err != nil {
+		t.Errorf("did not expect a lexar error")
+	}
+
+	tk, err := Tokenize(ls)
+	if err != nil {
+		t.Errorf("did not expect an error")
+	}
+
+	e := CreateEvaluator()
+	finalTk := e.eval(tk)
+	if finalTk.GetType() != "SExpression" {
+		t.Errorf("Expected SExpression. Received %s.", finalTk.GetType())
+	}
+
+	sexp := finalTk.(SExpression)
+	if sexp.Value.Value != "FOO" {
+		t.Errorf("Expected FOO. Received %s.", sexp.Value.Value)
+	}
+}
+
+func TestEvalForm_ConditionalStatement_Simple2(t *testing.T) {
+	input := "[[F~BAR][T~FOO]]"
+
+	le := CreateLexarExecutor()
+	ls, err := le.Lex(input)
+	if err != nil {
+		t.Errorf("did not expect a lexar error")
+	}
+
+	tk, err := Tokenize(ls)
+	if err != nil {
+		t.Errorf("did not expect an error")
+	}
+
+	e := CreateEvaluator()
+	finalTk := e.eval(tk)
+	if finalTk.GetType() != "SExpression" {
+		t.Errorf("Expected SExpression. Received %s.", finalTk.GetType())
+	}
+
+	sexp := finalTk.(SExpression)
+	if sexp.Value.Value != "FOO" {
+		t.Errorf("Expected FOO. Received %s.", sexp.Value.Value)
+	}
+}
+
+func TestEvalForm_ConditionalStatement_Simple3(t *testing.T) {
+	input := "[[F~BAR][eq[[A][B]]~BAZ][atom[[FOO]]~FOO][T~FAZ]]"
+
+	le := CreateLexarExecutor()
+	ls, err := le.Lex(input)
+	if err != nil {
+		t.Errorf("did not expect a lexar error")
+	}
+
+	tk, err := Tokenize(ls)
+	if err != nil {
+		t.Errorf("did not expect an error")
+	}
+
+	e := CreateEvaluator()
+	finalTk := e.eval(tk)
+	if finalTk.GetType() != "SExpression" {
+		t.Errorf("Expected SExpression. Received %s.", finalTk.GetType())
+	}
+
+	sexp := finalTk.(SExpression)
+	if sexp.Value.Value != "FOO" {
+		t.Errorf("Expected FOO. Received %s.", sexp.Value.Value)
 	}
 }

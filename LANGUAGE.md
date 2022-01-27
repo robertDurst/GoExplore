@@ -13,9 +13,8 @@
 
 ```
 <form> ::= <S-expression> | 
-           <identifier> |
            <identifier>[[<form>]...[<form>]] |
-           label[<identifier><function>]
+           label[<identifier> <identifier>[[<form>]...[<form>]]]
            [[<form>~<form>]...[<form>~<form>]]
 <argument> ::= <form>
 <identifier> ::= <letter><id part>

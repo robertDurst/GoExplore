@@ -1,9 +1,8 @@
 package GoExplore
 
-import "fmt"
-
 type Evaluator struct {
 	functionMap map[string]func([]Token) (Token, error)
+	labelMap    map[string]Function
 }
 
 func CreateEvaluator() Evaluator {
@@ -14,15 +13,15 @@ func CreateEvaluator() Evaluator {
 	fmap["eq"] = eq
 	fmap["atom"] = atom
 
-	return Evaluator{functionMap: fmap}
+	lmap := make(map[string]Function)
+
+	return Evaluator{functionMap: fmap, labelMap: lmap}
 }
 
 func (e Evaluator) eval(tk Token) Token {
 	switch tk.GetType() {
 	case "SExpression":
 		return e.evalSExpression(tk.(SExpression))
-	case "Variable":
-		return e.evalVariable(tk.(Variable))
 	case "Function":
 		return e.evalFunction(tk.(Function))
 	case "FunctionLabel":
@@ -38,18 +37,15 @@ func (e Evaluator) evalSExpression(sexp SExpression) Token {
 	return sexp
 }
 
-func (e Evaluator) evalVariable(v Variable) Token {
-	return v
-}
-
 func (e Evaluator) evalFunction(fn Function) Token {
 	args := make([]Token, 0)
 	for _, arg := range fn.Args {
 		evaldArg := e.eval(arg)
-		if evaldArg.GetType() != "SExpression" {
-			panic("expected only SExpression args in FunctionIdentifier")
+		if evaldArg.GetType() == "SExpression" || evaldArg.GetType() == "Ident" {
+			args = append(args, evaldArg)
+		} else {
+			panic("Function arguments must be either a SExpression or a Variable")
 		}
-		args = append(args, evaldArg)
 	}
 
 	name := fn.Name
@@ -57,18 +53,44 @@ func (e Evaluator) evalFunction(fn Function) Token {
 		val, _ := f(args)
 		return val
 	}
+
+	if _, ok := e.labelMap[name]; ok {
+		return nil
+	}
+
 	return nil
 }
 
 // returns whether or not was able to successfully "create" function
 func (e Evaluator) evalFunctionLabel(fl FunctionLabel) Token {
-	name := fl.Name
+	name := fl.Name.Value
 
-	fmt.Printf("Creating function %s.", name)
+	// already exists
+	if _, ok := e.functionMap[name]; ok {
+		return boolToSExpression(false)
+	}
+
+	if _, ok := e.labelMap[name]; ok {
+		return boolToSExpression(false)
+	}
+
+	if fl.Fn.GetType() != "Function" {
+		panic("expected function label to be labeling a function")
+	}
+
+	e.labelMap[name] = fl.Fn.(Function)
 
 	return boolToSExpression(true)
 }
 
 func (e Evaluator) evalConditionalStatement(cs ConditionalStatement) Token {
+	for _, cp := range cs.ConditionalPairs {
+		isTruthy := e.eval(cp.Predicate)
+
+		if isTruthy.GetType() == "SExpression" && isTruthy.(SExpression).Value.Value == "T" {
+			return e.eval(cp.Result)
+		}
+	}
+
 	return nil
 }
