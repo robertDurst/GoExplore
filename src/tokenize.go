@@ -9,8 +9,6 @@ func Tokenize(lexs []Lexicon) (Token, error) {
 	switch {
 	case len(lexs) == 0:
 		return nil, errors.New("received no lexicons to tokenize")
-	case lexs[0].Type == Identifier && lexs[0].Value == "label":
-		return parseFunctionLabel(lexs[1])
 	default:
 		if lexs[0].Type == Identifier && len(lexs) > 1 {
 			name := lexs[0].Value
@@ -40,22 +38,6 @@ func parseForm(cur Lexicon) (Token, error) {
 	default:
 		return nil, fmt.Errorf("unexpected lexicon received in parseForm. Received %d", cur.Type)
 	}
-}
-
-func parseFunctionLabel(cur Lexicon) (Token, error) {
-	if err := AssertType(cur, ArgList); err != nil {
-		return nil, err
-	}
-
-	identifier := CreateIdent(cur.ListValues[0].Value)
-
-	form, err := Tokenize(cur.ListValues[1:])
-	if err != nil {
-		return nil, err
-	}
-
-	functionLabel := CreateFunctionLabel(identifier, form)
-	return functionLabel, nil
 }
 
 func parseConditionalStatement(cur Lexicon) (Token, error) {

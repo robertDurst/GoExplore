@@ -24,10 +24,10 @@ func (e Evaluator) Eval(tk Token) Token {
 	switch tk.GetType() {
 	case "SExpression":
 		return e.evalSExpression(tk.(SExpression))
+	case "Ident":
+		return e.evalIdent(tk.(Ident))
 	case "Function":
 		return e.evalFunction(tk.(Function))
-	case "FunctionLabel":
-		return e.evalFunctionLabel(tk.(FunctionLabel))
 	case "ConditionalStatement":
 		return e.evalConditionalStatement(tk.(ConditionalStatement))
 	default:
@@ -37,6 +37,10 @@ func (e Evaluator) Eval(tk Token) Token {
 
 func (e Evaluator) evalSExpression(sexp SExpression) Token {
 	return sexp
+}
+
+func (e Evaluator) evalIdent(ident Ident) Token {
+	return ident
 }
 
 func (e Evaluator) evalFunction(fn Function) Token {
@@ -57,33 +61,11 @@ func (e Evaluator) evalFunction(fn Function) Token {
 	}
 
 	if f, ok := e.labelMap[name]; ok {
-		fmt.Printf("We want to execute %s() which has %d args and we've supplied %d args", f.Name, len(f.Args), len(fn.Args))
+		fmt.Printf("We want to execute %s() which has %d args and we've supplied %d args\n", f.Name, len(f.Args), len(fn.Args))
 		return nil
 	}
 
 	return nil
-}
-
-// returns whether or not was able to successfully "create" function
-func (e Evaluator) evalFunctionLabel(fl FunctionLabel) Token {
-	name := fl.Name.Value
-
-	// already exists
-	if _, ok := e.functionMap[name]; ok {
-		return boolToSExpression(false)
-	}
-
-	if _, ok := e.labelMap[name]; ok {
-		return boolToSExpression(false)
-	}
-
-	if fl.Fn.GetType() != "Function" {
-		panic("expected function label to be labeling a function")
-	}
-
-	e.labelMap[name] = fl.Fn.(Function)
-
-	return boolToSExpression(true)
 }
 
 func (e Evaluator) evalConditionalStatement(cs ConditionalStatement) Token {

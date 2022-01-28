@@ -8,7 +8,7 @@ import (
 	GoExplore "github.com/robertDurst/GoExplore/src"
 )
 
-func interpretSingleLine(input string) (GoExplore.Token, error) {
+func interpretSingleLine(input string, e GoExplore.Evaluator) (GoExplore.Token, error) {
 
 	le := GoExplore.CreateLexarExecutor()
 	ls, err := le.Lex(input)
@@ -21,7 +21,6 @@ func interpretSingleLine(input string) (GoExplore.Token, error) {
 		return nil, fmt.Errorf("[Tokenizer error]: %s", err)
 	}
 
-	e := GoExplore.CreateEvaluator()
 	return e.Eval(tk), nil
 }
 
@@ -35,9 +34,10 @@ func getNextInput() string {
 }
 
 func main() {
+	e := GoExplore.CreateEvaluator()
 	for {
 		line := getNextInput()
-		tk, err := interpretSingleLine(line)
+		tk, err := interpretSingleLine(line, e)
 		if err != nil {
 			fmt.Println(err.Error())
 		} else {
